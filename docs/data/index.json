@@ -1,0 +1,435 @@
+{
+ "scenes": [
+  {
+   "id": "t03756",
+   "split": "test_comp",
+   "prompt": "A baby passes in front of you from your right to your left; another car passes it head-on, going the opposite way; a bee takes off at your front-right, climbing higher and farther away.",
+   "target": {
+    "type": "opposite_direction",
+    "subject": "car",
+    "reference": "baby"
+   },
+   "motions": [
+    "left_to_right",
+    "right_to_left",
+    "take_off"
+   ],
+   "n_sources": 3,
+   "heldout": true,
+   "rsr": {
+    "GT": 0.996,
+    "REL2TRAJ": 1.0,
+    "INDEP": 0.99,
+    "RULE": 1.0,
+    "LLM": 0.714
+   },
+   "target_rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 0.929,
+    "RULE": 1.0,
+    "LLM": 0.0
+   }
+  },
+  {
+   "id": "t04110",
+   "split": "test_comp",
+   "prompt": "A dog barks close by directly behind you; a car sounds farther out behind the dog, moving farther away; a motorcycle rushes past you very close, from your left to your right.",
+   "target": {
+    "type": "behind",
+    "subject": "car",
+    "reference": "dog"
+   },
+   "motions": [
+    "fly_by",
+    "recede",
+    "static"
+   ],
+   "n_sources": 3,
+   "heldout": true,
+   "rsr": {
+    "GT": 0.994,
+    "REL2TRAJ": 0.947,
+    "INDEP": 0.75,
+    "RULE": 0.75,
+    "LLM": 0.985
+   },
+   "target_rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 0.789,
+    "INDEP": 0.0,
+    "RULE": 1.0,
+    "LLM": 1.0
+   }
+  },
+  {
+   "id": "t05440",
+   "split": "test_comp",
+   "prompt": "A bird passes in front of you from your right to your left; another plane passes it head-on, going the opposite way; a helicopter circles around you counterclockwise, starting from your right.",
+   "target": {
+    "type": "opposite_direction",
+    "subject": "plane",
+    "reference": "bird"
+   },
+   "motions": [
+    "circle_ccw",
+    "left_to_right",
+    "right_to_left"
+   ],
+   "n_sources": 3,
+   "heldout": true,
+   "rsr": {
+    "GT": 0.997,
+    "REL2TRAJ": 1.0,
+    "INDEP": 1.0,
+    "RULE": 1.0,
+    "LLM": 0.334
+   },
+   "target_rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 1.0,
+    "RULE": 1.0,
+    "LLM": 0.0
+   }
+  },
+  {
+   "id": "t05609",
+   "split": "test_comp",
+   "prompt": "A plane passes in front of you from your right to your left; a helicopter follows it closely along the same path; a bird descends toward you from high up at your front-left, ending close by at ear level.",
+   "target": {
+    "type": "follow",
+    "subject": "helicopter",
+    "reference": "plane"
+   },
+   "motions": [
+    "descend_toward",
+    "right_to_left"
+   ],
+   "n_sources": 3,
+   "heldout": true,
+   "rsr": {
+    "GT": 0.994,
+    "REL2TRAJ": 1.0,
+    "INDEP": 0.964,
+    "RULE": 1.0,
+    "LLM": 0.673
+   },
+   "target_rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 0.749,
+    "RULE": 1.0,
+    "LLM": 0.708
+   }
+  },
+  {
+   "id": "t05772",
+   "split": "test_comp",
+   "prompt": "Thunder rumbles close by at your back-right; a helicopter sounds farther out behind the thunder, moving farther away; a dog sweeps halfway around you counterclockwise, starting from straight ahead.",
+   "target": {
+    "type": "behind",
+    "subject": "helicopter",
+    "reference": "thunder"
+   },
+   "motions": [
+    "half_circle",
+    "recede",
+    "static"
+   ],
+   "n_sources": 3,
+   "heldout": true,
+   "rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 0.918,
+    "INDEP": 0.8,
+    "RULE": 0.6,
+    "LLM": 0.685
+   },
+   "target_rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 0.588,
+    "INDEP": 0.0,
+    "RULE": 1.0,
+    "LLM": 1.0
+   }
+  },
+  {
+   "id": "t05975",
+   "split": "test_comp",
+   "prompt": "A dog passes in front of you from your right to your left; a car follows it closely along the same path; a baby approaches you in a straight line from your right.",
+   "target": {
+    "type": "follow",
+    "subject": "car",
+    "reference": "dog"
+   },
+   "motions": [
+    "approach",
+    "right_to_left"
+   ],
+   "n_sources": 3,
+   "heldout": true,
+   "rsr": {
+    "GT": 0.983,
+    "REL2TRAJ": 0.989,
+    "INDEP": 0.849,
+    "RULE": 1.0,
+    "LLM": 0.437
+   },
+   "target_rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 0.945,
+    "INDEP": 0.243,
+    "RULE": 1.0,
+    "LLM": 0.0
+   }
+  },
+  {
+   "id": "t05985",
+   "split": "test_comp",
+   "prompt": "A bird passes in front of you from your right to your left; another helicopter passes it head-on, going the opposite way; a rooster crows close by at your front-right.",
+   "target": {
+    "type": "opposite_direction",
+    "subject": "helicopter",
+    "reference": "bird"
+   },
+   "motions": [
+    "left_to_right",
+    "right_to_left",
+    "static"
+   ],
+   "n_sources": 3,
+   "heldout": true,
+   "rsr": {
+    "GT": 0.994,
+    "REL2TRAJ": 1.0,
+    "INDEP": 1.0,
+    "RULE": 1.0,
+    "LLM": 0.376
+   },
+   "target_rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 1.0,
+    "RULE": 1.0,
+    "LLM": 0.0
+   }
+  },
+  {
+   "id": "t10417",
+   "split": "test_comp",
+   "prompt": "A motorcycle idles close by at your back-right; a dog sounds farther out behind the motorcycle, moving farther away; a helicopter circles around you clockwise, starting from your front-right.",
+   "target": {
+    "type": "behind",
+    "subject": "dog",
+    "reference": "motorcycle"
+   },
+   "motions": [
+    "circle_cw",
+    "recede",
+    "static"
+   ],
+   "n_sources": 3,
+   "heldout": true,
+   "rsr": {
+    "GT": 0.991,
+    "REL2TRAJ": 0.878,
+    "INDEP": 0.8,
+    "RULE": 0.666,
+    "LLM": 0.542
+   },
+   "target_rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 0.459,
+    "INDEP": 0.0,
+    "RULE": 1.0,
+    "LLM": 0.0
+   }
+  },
+  {
+   "id": "t03528",
+   "split": "val_iid",
+   "prompt": "A baby cries in front of you; a helicopter hovers just to the right of the baby; a bird flies over your head from your back-left to your front-right.",
+   "target": {
+    "type": "right_of",
+    "subject": "helicopter",
+    "reference": "baby"
+   },
+   "motions": [
+    "fly_over",
+    "static"
+   ],
+   "n_sources": 3,
+   "heldout": false,
+   "rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 1.0,
+    "RULE": 1.0,
+    "LLM": 0.726
+   },
+   "target_rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 1.0,
+    "RULE": 1.0,
+    "LLM": 1.0
+   }
+  },
+  {
+   "id": "t05385",
+   "split": "val_iid",
+   "prompt": "A rooster crows close by on your left; a bell rings at your back-right, farther away than the rooster; a helicopter swings back and forth between your left and your right.",
+   "target": {
+    "type": "closer_than",
+    "subject": "rooster",
+    "reference": "bell"
+   },
+   "motions": [
+    "back_forth",
+    "static"
+   ],
+   "n_sources": 3,
+   "heldout": false,
+   "rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 0.6,
+    "RULE": 1.0,
+    "LLM": 0.599
+   },
+   "target_rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 0.0,
+    "RULE": 1.0,
+    "LLM": 1.0
+   }
+  },
+  {
+   "id": "t05729",
+   "split": "val_iid",
+   "prompt": "Thunder rumbles in front of you; a bird chirps just to the left of the thunder; a car approaches you from directly behind you and comes to a stop close by.",
+   "target": {
+    "type": "left_of",
+    "subject": "bird",
+    "reference": "thunder"
+   },
+   "motions": [
+    "approach_stop",
+    "static"
+   ],
+   "n_sources": 3,
+   "heldout": false,
+   "rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 1.0,
+    "RULE": 1.0,
+    "LLM": 1.0
+   },
+   "target_rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 1.0,
+    "RULE": 1.0,
+    "LLM": 1.0
+   }
+  },
+  {
+   "id": "t05972",
+   "split": "val_iid",
+   "prompt": "A plane passes behind you from your left to your right; a helicopter moves alongside it in the same direction; a siren starts close by at your back-left and then moves away.",
+   "target": {
+    "type": "same_direction",
+    "subject": "helicopter",
+    "reference": "plane"
+   },
+   "motions": [
+    "left_to_right",
+    "stop_recede"
+   ],
+   "n_sources": 3,
+   "heldout": false,
+   "rsr": {
+    "GT": 0.993,
+    "REL2TRAJ": 0.8,
+    "INDEP": 0.8,
+    "RULE": 1.0,
+    "LLM": 0.233
+   },
+   "target_rsr": {
+    "GT": 1.0,
+    "REL2TRAJ": 0.0,
+    "INDEP": 0.0,
+    "RULE": 1.0,
+    "LLM": 0.163
+   }
+  }
+ ],
+ "conds": [
+  {
+   "key": "GT",
+   "label": "Ground truth",
+   "note": "dataset trajectory"
+  },
+  {
+   "key": "REL2TRAJ",
+   "label": "Rel2Traj",
+   "note": "relation graph + anchors, equivariant keyframe diffusion"
+  },
+  {
+   "key": "INDEP",
+   "label": "Independent per-source",
+   "note": "Text2Move-style: no cross-source flow, no anchors"
+  },
+  {
+   "key": "RULE",
+   "label": "Rule solver",
+   "note": "constraint optimisation over the declared relations"
+  },
+  {
+   "key": "LLM",
+   "label": "LLM-direct",
+   "note": "qwen3:8b emits keyframes from the prompt text"
+  }
+ ],
+ "protocol": {
+  "sampling": "2000 + crc32(scene_id) % 100000 + draw, no guidance, no selection; draw 0 is rendered to audio",
+  "ddim_steps": 20,
+  "m_draws": 10,
+  "llm": "qwen3:8b",
+  "hrtf": "ku100",
+  "renderer": "renderer_v2 final (Doppler, min-phase interp HRTF, shoebox reflections, rear shading, overhead band)",
+  "loudness": "gated LUFS -28 (BS.1770) x ESC-50 class power prior",
+  "material": "GenA generated clips (per-class audited picks), identical per source across conditions",
+  "level": "one peak gain per scene, shared by all conditions",
+  "selection": "multi-source + >=1 inter-source relation + distinct timbres + GT worst_rsr>=0.95; greedy relation/motion coverage",
+  "relation_coverage": {
+   "behind": 3,
+   "closer_than": 1,
+   "follow": 2,
+   "left_of": 1,
+   "opposite_direction": 3,
+   "right_of": 1,
+   "same_direction": 1
+  },
+  "motion_coverage": {
+   "approach": 1,
+   "approach_stop": 1,
+   "back_forth": 1,
+   "circle_ccw": 1,
+   "circle_cw": 1,
+   "descend_toward": 1,
+   "fly_by": 1,
+   "fly_over": 1,
+   "half_circle": 1,
+   "left_to_right": 4,
+   "recede": 3,
+   "right_to_left": 5,
+   "static": 7,
+   "stop_recede": 1,
+   "take_off": 1
+  }
+ }
+}

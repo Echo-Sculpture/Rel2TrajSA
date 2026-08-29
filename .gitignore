@@ -1,0 +1,6 @@
+# build intermediates: regenerated from the research repo, never published
+work/
+
+__pycache__/
+*.pyc
+.DS_Store
