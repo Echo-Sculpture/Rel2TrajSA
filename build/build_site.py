@@ -32,8 +32,11 @@ COND_LABEL = {
     "GT": ("Ground truth", "dataset trajectory"),
     "REL2TRAJ": ("Rel2Traj", "relation graph + anchors, equivariant "
                              "keyframe diffusion"),
-    "INDEP": ("Independent per-source", "Text2Move-style: no cross-source "
-                                        "flow, no anchors"),
+    # Named for what it IS, not for whose paper it evokes: this is our own
+    # model with cross-source information flow removed and anchor tokens
+    # withheld -- a single-variable control, not a reimplementation of anyone.
+    "INDEP": ("Independent per-source", "same model, cross-source information "
+                                        "flow removed, anchors withheld"),
     "RULE": ("Rule solver", "constraint optimisation over the declared "
                             "relations"),
     "LLM": ("LLM-direct", "qwen3:8b emits keyframes from the prompt text"),

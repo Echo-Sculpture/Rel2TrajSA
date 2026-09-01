@@ -381,7 +381,7 @@
   {
    "key": "INDEP",
    "label": "Independent per-source",
-   "note": "Text2Move-style: no cross-source flow, no anchors"
+   "note": "same model, cross-source information flow removed, anchors withheld"
   },
   {
    "key": "RULE",

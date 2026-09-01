@@ -4,8 +4,10 @@ Conditions (page column order):
   GT        frozen ground-truth trajectories from the dataset npz
   REL2TRAJ  the full system (relation graph + anchors, equivariant keyframe
             diffusion)                        -- outputs/d3_csteer.pt
-  INDEP     independent per-source, no anchors (Text2Move-style learned
-            baseline, main-table row 4)       -- outputs/e1b_indep_noanchor.pt
+  INDEP     the same model with cross-source information flow removed and
+            anchor tokens withheld -- a single-variable control, NOT a
+            reimplementation of any published system (main-table row 4)
+                                              -- outputs/e1b_indep_noanchor.pt
   RULE      grammar constraint solver (plan_rule_v2): motions + relations,
             no anchors
   LLM       LLM-direct (qwen3:8b via Ollama, temp 0, thinking off, 2 retries)

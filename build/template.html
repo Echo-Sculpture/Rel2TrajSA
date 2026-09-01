@@ -299,8 +299,18 @@
     among those, scenes were taken greedily so that all seven inter-source
     relations and as many motion primitives as possible appear. The clip you
     hear is always the first draw under the pre-registered per-scene seed.</p>
+    <p class="lead"><b>On the baselines.</b> No previously published system was
+    run for this page. The <em>independent per-source</em> column is our own
+    model with the cross-source information flow structurally removed and the
+    anchor tokens withheld &mdash; a single-variable control that isolates what
+    joint conditioning contributes, and the closest learned stand-in for
+    generating each source on its own. The <em>rule solver</em> optimises the
+    declared relations directly with a constraint solver, and
+    <em>LLM-direct</em> asks a general language model for coordinates. Each is
+    a construction of ours; none carries anyone else's name, and none should be
+    read as a measurement of another group's method.</p>
     <details><summary>Full build protocol</summary>
-      <div class="scroll"><div id="protocol"></div></div>
+      <div class="scroll"><div id="protocoltable"></div></div>
     </details>
   </div>
 </section>
@@ -546,7 +556,7 @@ function renderParser(){
 
 function renderProtocol(){
   const p = state.meta.protocol;
-  document.getElementById('protocol').innerHTML = `
+  document.getElementById('protocoltable').innerHTML = `
     <table><tbody>
       <tr><th>scene selection</th><td>${p.selection}</td></tr>
       <tr><th>sampling</th><td>${p.sampling}; ${p.ddim_steps} DDIM steps;
