@@ -64,15 +64,19 @@
   .divider{height:1px; background:var(--line); margin:38px 0 0;}
 
   /* ---------- viewer ---------- */
-  .scenebar{display:flex; gap:8px; overflow-x:auto; padding:6px 2px 12px;
-            scrollbar-width:thin;}
-  .sc{flex:0 0 auto; padding:8px 13px; border-radius:10px; cursor:pointer;
+  .scenebar{display:grid; gap:8px; padding:6px 0 14px;
+            grid-template-columns:repeat(auto-fill,minmax(178px,1fr));}
+  .sc{padding:9px 12px; border-radius:10px; cursor:pointer;
       border:1px solid var(--line); background:#fff; font:inherit;
-      font-size:.85rem; white-space:nowrap; text-align:left; color:var(--ink);}
+      font-size:.85rem; text-align:left; color:var(--ink);}
   .sc:hover{border-color:#c4ccd6;}
   .sc.on{border-color:var(--acc); background:var(--acc-soft); color:var(--acc);
          font-weight:600;}
-  .sc small{display:block; color:var(--mut); font-size:.75rem; font-weight:400;}
+  .sc small{display:block; color:var(--mut); font-size:.75rem; font-weight:400;
+            margin-top:2px;}
+  .sc .hchip{display:inline-block; margin-top:5px; font-size:.68rem;
+             font-weight:600; color:var(--warn); background:#fdf5e4;
+             border:1px solid #f0dcb0; border-radius:99px; padding:0 7px;}
   .promptcard{background:var(--soft); border:1px solid var(--line);
               border-radius:12px; padding:14px 16px;}
   .promptcard .q{font-family:Newsreader,Georgia,serif; font-size:1.14rem;
@@ -247,15 +251,57 @@
 
 <div class="wrap"><div class="divider"></div></div>
 
+<section id="language">
+  <div class="wrap">
+    <p class="kicker">What the system can be told</p>
+    <h2>Relations and motions</h2>
+    <p class="lead">Descriptions are written in a controlled relational
+    language. Relations either place a source with respect to the
+    <b>listener</b> or tie two <b>sources</b> to each other; the inter-source
+    family is the one this work is about. Counts are relation instances across
+    the whole dataset.</p>
+    <div class="scroll"><div id="vocabtable"></div></div>
+
+    <h3>Held-out motion&ndash;relation combinations</h3>
+    <p class="lead">Five combinations were frozen out of training before any
+    model was trained. Each keeps a sibling in training, so what is tested is
+    <em>composition</em>, not an unseen relation type.</p>
+    <div class="scroll"><div id="heldouttable"></div></div>
+  </div>
+</section>
+
+<div class="wrap"><div class="divider"></div></div>
+
+<section id="parser">
+  <div class="wrap">
+    <p class="kicker">Text to conditioning</p>
+    <h2>The language model in the pipeline</h2>
+    <p class="lead" id="parserlead"></p>
+    <div class="scroll"><div id="parsertable"></div></div>
+    <p class="foot">End-to-end RSR is the trajectory score when the model is
+    conditioned on the parse instead of the ground-truth graph, on the same
+    held-out scenes. Note that the LLM-direct <em>baseline</em> in the viewer
+    above is a different thing: there, a general model is asked for
+    coordinates directly, with no graph, no anchors and no trajectory model.</p>
+  </div>
+</section>
+
+<div class="wrap"><div class="divider"></div></div>
+
 <section id="protocol">
   <div class="wrap">
     <p class="kicker">Reproducibility</p>
     <h2>How these clips were made</h2>
     <p class="lead">Nothing on this page is a hand-picked sample. The twelve
-    scenes were chosen by a coverage rule fixed <em>before</em> any system was
-    run, and the clip you hear is always the first draw under the
-    pre-registered per-scene seed.</p>
-    <div class="scroll"><div id="protocol"></div></div>
+    scenes were chosen by a rule fixed <em>before</em> any system was run:
+    every scene must have several sources, at least one inter-source relation,
+    two distinguishable timbres for the related pair and clean ground truth;
+    among those, scenes were taken greedily so that all seven inter-source
+    relations and as many motion primitives as possible appear. The clip you
+    hear is always the first draw under the pre-registered per-scene seed.</p>
+    <details><summary>Full build protocol</summary>
+      <div class="scroll"><div id="protocol"></div></div>
+    </details>
   </div>
 </section>
 
@@ -286,6 +332,7 @@
 
 <audio id="snd" preload="none"></audio>
 <script>
+const BUILD = '{{BUILD}}';   // cache key: changes whenever the data changes
 const state = {meta:null, scene:null, cond:"REL2TRAJ", draw:0,
                tNorm:0, playing:false, ghost:false};
 let yaw=-0.6, pitch=0.5, dist=15;
@@ -297,15 +344,16 @@ const cls = v => (v===null||v===undefined) ? '' :
                  v>=0.95 ? 'hi' : v>=0.8 ? 'mid' : 'lo';
 
 async function boot(){
-  state.meta = await (await fetch('data/index.json')).json();
+  state.meta = await (await fetch(`data/index.json?v=${BUILD}`)).json();
   const bar = document.getElementById('scenebar');
   state.meta.scenes.forEach((s,i)=>{
     const b=document.createElement('button'); b.className='sc'; b.dataset.i=i;
-    b.innerHTML = `<b>${s.target.type}</b><small>${s.motions.join(' + ')}</small>`;
+    b.innerHTML = `<b>${s.target.type}</b><small>${s.motions.join(' + ')}</small>` +
+      (s.heldout ? `<span class="hchip">held-out combination</span>` : '');
     b.onclick = ()=> loadScene(i);
     bar.appendChild(b);
   });
-  renderProtocol();
+  renderProtocol(); renderVocab(); renderParser();
   loadScene(0);
 }
 
@@ -313,7 +361,7 @@ async function loadScene(i){
   const meta = state.meta.scenes[i];
   document.querySelectorAll('.sc').forEach(b=>
     b.classList.toggle('on', +b.dataset.i===i));
-  state.scene = await (await fetch(`data/${meta.id}.json`)).json();
+  state.scene = await (await fetch(`data/${meta.id}.json?v=${BUILD}`)).json();
   state.idx = i; state.draw = 0; state.tNorm = 0; stop();
   if(!state.scene.conds[state.cond]) state.cond = 'GT';
   renderPrompt(); renderConds(); renderDraws(); renderTable(); renderGeom();
@@ -339,19 +387,30 @@ function renderPrompt(){
      grey = out of scope.`;
 }
 
+const avg = xs => { const v = xs.filter(x=>x!==null&&x!==undefined);
+  return v.length ? v.reduce((a,b)=>a+b,0)/v.length : null; };
+
 function renderConds(){
   const S = state.scene, box = document.getElementById('conds');
   box.innerHTML = '';
   for(const key of state.meta.conds.map(c=>c.key)){
     const c = S.conds[key]; if(!c) continue;
-    const d = c.draws[Math.min(state.draw, c.draws.length-1)];
+    const n = c.draws.length;
+    const j = Math.min(state.draw, n-1), d = c.draws[j];
+    // headline is the mean over all draws -- the protocol the paper reports.
+    // A single draw is a sample, not the system, and putting one on the badge
+    // invites reading whichever draw happens to be on screen as the result.
+    const head = avg(c.draws.map(x=>x.target));
     const b = document.createElement('button');
     b.className = 'cond' + (key===state.cond ? ' on':'');
     b.innerHTML =
       `<div class="row1"><b>${c.label}</b>
-        <span class="rsr ${cls(d.target)}">${fmt(d.target)}</span></div>
+        <span class="rsr ${cls(head)}">${fmt(head)}</span></div>
        <div class="note">${c.note}</div>
-       <div class="note">scene mean ${fmt(d.mean)}</div>`;
+       <div class="note">${n>1
+          ? `mean of ${n} draws &middot; scene mean ${fmt(avg(c.draws.map(x=>x.mean)))}
+             <br>draw ${j+1} on screen: ${fmt(d.target)}`
+          : `single solution &middot; scene mean ${fmt(d.mean)}`}</div>`;
     b.onclick = ()=>{ state.cond=key; renderConds(); renderDraws();
                       setAudio(false); draw(); };
     box.appendChild(b);
@@ -383,7 +442,14 @@ function renderTable(){
   const S = state.scene, keys = state.meta.conds.map(c=>c.key)
     .filter(k=>S.conds[k]);
   const rels = S.relations.map(r=>`${r.type}|${r.subject}|${r.reference}`);
-  const vals = k => S.conds[k].draws[0].per_relation;
+  // every cell is the mean over that system's draws (one draw for the
+  // deterministic systems), matching the badge and the paper's protocol
+  const vals = k => {
+    const out = {};
+    for(const key of rels)
+      out[key] = avg(S.conds[k].draws.map(d=>d.per_relation[key]));
+    return out;
+  };
   let html = `<table><thead><tr><th>relation</th>` +
     keys.map(k=>`<th class="num">${S.conds[k].label}</th>`).join('') +
     `</tr></thead><tbody>`;
@@ -397,20 +463,21 @@ function renderTable(){
       `</tr>`;
   }
   html += `<tr><td><b>scene mean</b></td>` + keys.map(k=>
-    `<td class="num"><b>${fmt(S.conds[k].draws[0].mean)}</b></td>`).join('') +
-    `</tr></tbody></table>`;
+    `<td class="num"><b>${fmt(avg(S.conds[k].draws.map(d=>d.mean)))}</b></td>`
+    ).join('') + `</tr></tbody></table>`;
   document.getElementById('rsrtable').innerHTML = html;
 }
 
 function renderGeom(){
   const S = state.scene, keys = state.meta.conds.map(c=>c.key)
     .filter(k=>S.conds[k]);
-  const g = k => S.conds[k].draws[0].geom || {};
+  const g = (k,f) => avg(S.conds[k].draws.map(d=>(d.geom||{})[f]));
+  const gmin = (k,f) => Math.min(...S.conds[k].draws.map(d=>(d.geom||{})[f]));
   const rows = [
-    ['mean jerk (m/s&sup3;)', k=>g(k).jerk, v=>v.toFixed(1), false],
-    ['frames closer than 0.5 m', k=>g(k).head,
+    ['mean jerk (m/s&sup3;)', k=>g(k,'jerk'), v=>v.toFixed(1), false],
+    ['frames closer than 0.5 m', k=>g(k,'head'),
      v=>(100*v).toFixed(1)+'%', true],
-    ['closest approach (m)', k=>g(k).min_dist, v=>v.toFixed(2), false],
+    ['closest approach (m)', k=>gmin(k,'min_dist'), v=>v.toFixed(2), false],
   ];
   let html = `<table><thead><tr><th>geometry</th>` +
     keys.map(k=>`<th class="num">${S.conds[k].label}</th>`).join('') +
@@ -425,6 +492,56 @@ function renderGeom(){
   }
   html += `</tbody></table>`;
   document.getElementById('geomtable').innerHTML = html;
+}
+
+function renderVocab(){
+  const v = state.meta.vocab;
+  const pill = (k,n)=>`<span class="tag">${k} <span style="opacity:.65">${n}</span></span>`;
+  const html = `<table><tbody>
+    <tr><th style="width:26%">listener sectors
+        <span style="color:var(--mut);font-weight:400">(${v.sectors.length})</span></th>
+      <td><div class="tags">${v.sectors.map(k=>`<span class="tag">${k}</span>`).join('')}</div></td></tr>
+    <tr><th>listener-relative motion and position
+        <span style="color:var(--mut);font-weight:400">(${Object.keys(v.listener_motion).length})</span></th>
+      <td><div class="tags">${Object.entries(v.listener_motion).map(([k,n])=>pill(k,n)).join('')}</div></td></tr>
+    <tr><th>inter-source relations
+        <span style="color:var(--mut);font-weight:400">(${Object.keys(v.inter).length})</span></th>
+      <td><div class="tags">${Object.entries(v.inter).map(([k,n])=>
+        `<span class="tag inter">${k} <span style="opacity:.7">${n}</span></span>`).join('')}</div></td></tr>
+    <tr><th>motion primitives
+        <span style="color:var(--mut);font-weight:400">(${Object.keys(v.motion).length})</span></th>
+      <td><div class="tags">${Object.entries(v.motion).map(([k,n])=>pill(k,n)).join('')}</div></td></tr>
+  </tbody></table>`;
+  document.getElementById('vocabtable').innerHTML = html;
+
+  document.getElementById('heldouttable').innerHTML =
+    `<table><thead><tr><th>cell</th><th>held out of training</th>
+      <th>kept in training</th><th class="num">test scenes</th></tr></thead><tbody>` +
+    v.heldout.map(h=>`<tr><td><b>${h.id}</b></td><td>${h.held}</td>
+      <td style="color:var(--mut)">${h.kept}</td>
+      <td class="num">${h.n}</td></tr>`).join('') +
+    `</tbody></table>`;
+}
+
+function renderParser(){
+  const p = state.meta.parser;
+  document.getElementById('parserlead').innerHTML =
+    `A sentence has to become conditioning before anything can be generated.
+     That step is a <b>${p.base}</b> parser fine-tuned with ${p.adapter},
+     trained on ${p.train}; it emits the relation graph and the per-source
+     anchors that the trajectory model consumes. Evaluated on
+     ${p.n_scenes} held-out scenes.`;
+  const f = v => (v===null||v===undefined) ? '&mdash;' : v.toFixed(3);
+  document.getElementById('parsertable').innerHTML =
+    `<table><thead><tr><th>parser</th><th class="num">motion accuracy</th>
+      <th class="num">relation F1</th>
+      <th class="num">end-to-end RSR</th></tr></thead><tbody>` +
+    p.rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${f(r[1])}</td>
+      <td class="num">${f(r[2])}</td><td class="num">${f(r[3])}</td></tr>`).join('') +
+    `<tr><td style="color:var(--mut)">ground-truth graph (oracle ceiling)</td>
+      <td class="num">&mdash;</td><td class="num">&mdash;</td>
+      <td class="num">${f(p.oracle)}</td></tr>` +
+    `</tbody></table>`;
 }
 
 function renderProtocol(){

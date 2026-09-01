@@ -15,11 +15,12 @@ Usage: python -B build/build_site.py
 
 from __future__ import annotations
 
+import hashlib
 import json
 
 import numpy as np
 
-from _common import DATA, HERE, RESEARCH, SITE, WORK
+from _common import DATA, HERE, OUTPUTS, RESEARCH, SITE, WORK
 
 from naturalness import trajectory_naturalness
 from relations import Relation, _scope_mask, satisfied
@@ -49,6 +50,82 @@ def abstract_html() -> str:
             if p.strip() and not p.startswith("#") and not p.startswith("---")]
     text = body[0].replace("``", "&ldquo;").replace("''", "&rdquo;")
     return " ".join(text.split())
+
+
+SECTORS = ["at_front", "at_front_left", "at_left", "at_back_left", "at_back",
+           "at_back_right", "at_right", "at_front_right"]
+HELDOUT_DOC = {
+    "H1": ("follow &times; right-to-left motion",
+           "training keeps follow &times; left-to-right"),
+    "H2": ("opposite direction with the right-to-left source leading",
+           "training keeps the mirrored lead"),
+    "H3": ("behind-pair whose leader sits in a rear sector",
+           "training keeps frontal and side leaders"),
+    "H4": ("approach starting from the back-right sector",
+           "training keeps every other approach sector"),
+    "H6": ("half circle swept counter-clockwise",
+           "training keeps clockwise sweeps"),
+}
+
+
+def vocabulary() -> dict:
+    """The grammar as the dataset actually instantiates it: which relation
+    types and motion primitives occur, and how many scenes each held-out
+    combination cell contributes to the compositional test split."""
+    listener, inter, motion, cells = {}, {}, {}, {}
+    for split in ("train", "val_iid", "test_comp"):
+        f = DATA / f"scenes_{split}.jsonl"
+        if not f.exists():
+            continue
+        for row in (json.loads(l) for l in open(f, encoding="utf-8")):
+            for s in row["sources"]:
+                m = s.get("motion", "static")
+                motion[m] = motion.get(m, 0) + 1
+            for r in row["relations"]:
+                d = inter if r["reference"] != "listener" else listener
+                d[r["type"]] = d.get(r["type"], 0) + 1
+            for c in row.get("heldout_cells", []):
+                cells[c] = cells.get(c, 0) + 1
+    return {
+        "sectors": [k for k in SECTORS if k in listener],
+        "listener_motion": {k: v for k, v in sorted(listener.items())
+                            if k not in SECTORS},
+        "inter": dict(sorted(inter.items(), key=lambda kv: -kv[1])),
+        "motion": dict(sorted(motion.items(), key=lambda kv: -kv[1])),
+        "heldout": [{"id": c.split(":")[0], "n": n,
+                     "held": HELDOUT_DOC.get(c.split(":")[0], ("", ""))[0],
+                     "kept": HELDOUT_DOC.get(c.split(":")[0], ("", ""))[1]}
+                    for c, n in sorted(cells.items())],
+    }
+
+
+def parser_info() -> dict:
+    """The LLM in the pipeline: a fine-tuned parser that turns one sentence
+    into the relation graph and anchors. Numbers are read from the evaluation
+    JSONs so the page cannot quote a stale figure."""
+    def load(name):
+        p = OUTPUTS / name
+        return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+    ft, few, para = (load("parser_v2_ablate60_lora.json"),
+                     load("parser_v2_ablate60.json"),
+                     load("e7b_paraphrase_eval.json"))
+    return {
+        "base": "Qwen3-4B",
+        "adapter": "QLoRA, 4-bit NF4 base, LoRA r=16 alpha=32 on the "
+                   "attention and MLP projections",
+        "train": "4891 sentence / graph pairs from the training split",
+        "rows": [
+            ("fine-tuned parser", ft.get("motion_acc"), ft.get("relation_F1"),
+             ft.get("e2e_rsr_parsed_bestofM")),
+            ("same model, few-shot prompting only", few.get("motion_acc"),
+             few.get("relation_F1"), few.get("e2e_rsr_parsed_bestofM")),
+            ("fine-tuned parser, paraphrased sentences",
+             para.get("motion_acc"), para.get("relation_F1"),
+             para.get("e2e_rsr_parsed_bestofM")),
+        ],
+        "oracle": ft.get("e2e_rsr_oracle_bestofM"),
+        "n_scenes": ft.get("n_scenes"),
+    }
 
 
 def spherical_to_xyz(az, el, dist):
@@ -197,14 +274,20 @@ def main() -> int:
             "relation_coverage": manifest["relation_coverage"],
             "motion_coverage": manifest["motion_coverage"],
         },
+        "vocab": vocabulary(),
+        "parser": parser_info(),
     }
-    (SITE / "data" / "index.json").write_text(
-        json.dumps(site_meta, ensure_ascii=False, indent=1), encoding="utf-8")
+    meta_json = json.dumps(site_meta, ensure_ascii=False, indent=1)
+    (SITE / "data" / "index.json").write_text(meta_json, encoding="utf-8")
 
     html = (HERE / "template.html").read_text(encoding="utf-8")
     assert "{{ABSTRACT}}" in html, "template lost its abstract placeholder"
+    # data files are fetched with ?v=<stamp>; without it a browser (or the
+    # Pages CDN) happily serves yesterday's JSON against today's page
+    stamp = hashlib.md5(meta_json.encode("utf-8")).hexdigest()[:10]
     (SITE / "index.html").write_text(
-        html.replace("{{ABSTRACT}}", abstract_html()), encoding="utf-8")
+        html.replace("{{ABSTRACT}}", abstract_html()).replace("{{BUILD}}", stamp),
+        encoding="utf-8")
     (SITE / ".nojekyll").write_text("", encoding="utf-8")
     payload_kb = sum(f.stat().st_size for f in (SITE / "data").iterdir()) / 1024
     print(f"wrote {len(index)} scenes, data payload {payload_kb:.0f} KB")

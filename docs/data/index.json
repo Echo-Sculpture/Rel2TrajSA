@@ -431,5 +431,114 @@
    "stop_recede": 1,
    "take_off": 1
   }
+ },
+ "vocab": {
+  "sectors": [
+   "at_front",
+   "at_front_left",
+   "at_left",
+   "at_back_left",
+   "at_back",
+   "at_back_right",
+   "at_right",
+   "at_front_right"
+  ],
+  "listener_motion": {
+   "above": 226,
+   "approach": 1192,
+   "clockwise": 417,
+   "counterclockwise": 475,
+   "descending": 88,
+   "left_to_right": 2126,
+   "overhead": 177,
+   "recede": 1776,
+   "right_to_left": 2235,
+   "rising": 138
+  },
+  "inter": {
+   "follow": 500,
+   "opposite_direction": 490,
+   "same_direction": 467,
+   "closer_than": 454,
+   "behind": 428,
+   "left_of": 263,
+   "right_of": 252
+  },
+  "motion": {
+   "static": 4845,
+   "right_to_left": 2129,
+   "left_to_right": 2006,
+   "recede": 1012,
+   "stop_recede": 626,
+   "half_circle": 623,
+   "approach": 604,
+   "back_forth": 590,
+   "fly_by": 503,
+   "approach_stop": 500,
+   "fly_over": 177,
+   "circle_ccw": 146,
+   "take_off": 138,
+   "circle_cw": 123,
+   "descend_toward": 88
+  },
+  "heldout": [
+   {
+    "id": "H1",
+    "n": 256,
+    "held": "follow &times; right-to-left motion",
+    "kept": "training keeps follow &times; left-to-right"
+   },
+   {
+    "id": "H2",
+    "n": 245,
+    "held": "opposite direction with the right-to-left source leading",
+    "kept": "training keeps the mirrored lead"
+   },
+   {
+    "id": "H3",
+    "n": 143,
+    "held": "behind-pair whose leader sits in a rear sector",
+    "kept": "training keeps frontal and side leaders"
+   },
+   {
+    "id": "H4",
+    "n": 71,
+    "held": "approach starting from the back-right sector",
+    "kept": "training keeps every other approach sector"
+   },
+   {
+    "id": "H6",
+    "n": 329,
+    "held": "half circle swept counter-clockwise",
+    "kept": "training keeps clockwise sweeps"
+   }
+  ]
+ },
+ "parser": {
+  "base": "Qwen3-4B",
+  "adapter": "QLoRA, 4-bit NF4 base, LoRA r=16 alpha=32 on the attention and MLP projections",
+  "train": "4891 sentence / graph pairs from the training split",
+  "rows": [
+   [
+    "fine-tuned parser",
+    1.0,
+    1.0,
+    0.9739
+   ],
+   [
+    "same model, few-shot prompting only",
+    0.8855,
+    0.6865,
+    0.8866
+   ],
+   [
+    "fine-tuned parser, paraphrased sentences",
+    0.9618,
+    0.9885,
+    0.9651
+   ]
+  ],
+  "oracle": 0.9933,
+  "n_scenes": 60
  }
 }
