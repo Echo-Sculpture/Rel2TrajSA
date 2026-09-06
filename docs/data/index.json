@@ -1012,7 +1012,234 @@
    }
   ]
  },
- "cells": null,
+ "cells": {
+  "m_draws": 10,
+  "seeds": "2000 + j (eval_diffusion protocol)",
+  "n_test_comp": 1020,
+  "cells": [
+   {
+    "cell": "H1",
+    "relation": "follow",
+    "inter": true,
+    "n_scenes": 256,
+    "systems": {
+     "GT": {
+      "target": 1.0,
+      "n_instances": 256,
+      "scene_mean": 0.994
+     },
+     "REL2TRAJ": {
+      "target": 0.992,
+      "n_instances": 2560,
+      "scene_mean": 0.994
+     },
+     "INDEP": {
+      "target": 0.493,
+      "n_instances": 2560,
+      "scene_mean": 0.844
+     },
+     "RULE": {
+      "target": 0.999,
+      "n_instances": 256,
+      "scene_mean": 1.0
+     },
+     "LLM": {
+      "target": 0.427,
+      "n_instances": 256,
+      "scene_mean": 0.521
+     }
+    }
+   },
+   {
+    "cell": "H2",
+    "relation": "opposite_direction",
+    "inter": true,
+    "n_scenes": 245,
+    "systems": {
+     "GT": {
+      "target": 1.0,
+      "n_instances": 245,
+      "scene_mean": 0.994
+     },
+     "REL2TRAJ": {
+      "target": 0.961,
+      "n_instances": 2450,
+      "scene_mean": 0.986
+     },
+     "INDEP": {
+      "target": 0.592,
+      "n_instances": 2450,
+      "scene_mean": 0.87
+     },
+     "RULE": {
+      "target": 0.51,
+      "n_instances": 245,
+      "scene_mean": 0.844
+     },
+     "LLM": {
+      "target": 0.0,
+      "n_instances": 245,
+      "scene_mean": 0.375
+     }
+    }
+   },
+   {
+    "cell": "H3",
+    "relation": "behind",
+    "inter": true,
+    "n_scenes": 143,
+    "systems": {
+     "GT": {
+      "target": 1.0,
+      "n_instances": 143,
+      "scene_mean": 0.995
+     },
+     "REL2TRAJ": {
+      "target": 0.773,
+      "n_instances": 1430,
+      "scene_mean": 0.933
+     },
+     "INDEP": {
+      "target": 0.0,
+      "n_instances": 1430,
+      "scene_mean": 0.667
+     },
+     "RULE": {
+      "target": 1.0,
+      "n_instances": 143,
+      "scene_mean": 0.701
+     },
+     "LLM": {
+      "target": 0.636,
+      "n_instances": 143,
+      "scene_mean": 0.711
+     }
+    }
+   },
+   {
+    "cell": "H4",
+    "relation": "approach",
+    "inter": false,
+    "n_scenes": 71,
+    "systems": {
+     "GT": {
+      "target": 0.995,
+      "n_instances": 87,
+      "scene_mean": 0.997
+     },
+     "REL2TRAJ": {
+      "target": 1.0,
+      "n_instances": 870,
+      "scene_mean": 0.996
+     },
+     "INDEP": {
+      "target": 1.0,
+      "n_instances": 870,
+      "scene_mean": 0.967
+     },
+     "RULE": {
+      "target": 1.0,
+      "n_instances": 87,
+      "scene_mean": 0.994
+     },
+     "LLM": {
+      "target": 1.0,
+      "n_instances": 87,
+      "scene_mean": 0.58
+     }
+    }
+   },
+   {
+    "cell": "H6",
+    "relation": "counterclockwise",
+    "inter": false,
+    "n_scenes": 329,
+    "systems": {
+     "GT": {
+      "target": 1.0,
+      "n_instances": 334,
+      "scene_mean": 0.998
+     },
+     "REL2TRAJ": {
+      "target": 1.0,
+      "n_instances": 3340,
+      "scene_mean": 0.993
+     },
+     "INDEP": {
+      "target": 1.0,
+      "n_instances": 3340,
+      "scene_mean": 0.957
+     },
+     "RULE": {
+      "target": 0.992,
+      "n_instances": 334,
+      "scene_mean": 0.993
+     },
+     "LLM": {
+      "target": 0.688,
+      "n_instances": 333,
+      "scene_mean": 0.563
+     }
+    }
+   }
+  ],
+  "per_type_comp": {
+   "follow": {
+    "GT": 1.0,
+    "REL2TRAJ": 0.992,
+    "INDEP": 0.495,
+    "RULE": 0.999,
+    "LLM": 0.416
+   },
+   "same_direction": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 0.667,
+    "RULE": 0.0,
+    "LLM": 1.0
+   },
+   "opposite_direction": {
+    "GT": 1.0,
+    "REL2TRAJ": 0.961,
+    "INDEP": 0.595,
+    "RULE": 0.524,
+    "LLM": 0.0
+   },
+   "behind": {
+    "GT": 1.0,
+    "REL2TRAJ": 0.78,
+    "INDEP": 0.003,
+    "RULE": 1.0,
+    "LLM": 0.619
+   },
+   "closer_than": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 0.455,
+    "RULE": 1.0,
+    "LLM": 1.0
+   },
+   "left_of": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 1.0,
+    "RULE": 1.0,
+    "LLM": 0.833
+   },
+   "right_of": {
+    "GT": 1.0,
+    "REL2TRAJ": 1.0,
+    "INDEP": 0.84,
+    "RULE": 1.0,
+    "LLM": 0.8
+   }
+  },
+  "failed_scenes": {
+   "LLM": [
+    "t04260"
+   ]
+  }
+ },
  "mirror": {
   "worst": {
    "REL2TRAJ": 0.0,

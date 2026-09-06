@@ -107,8 +107,12 @@ def run_rule(rows, workers: int, maxiter: int = 200) -> dict:
 
 
 def run_llm(rows) -> dict:
-    """Per-scene records of the E6 LLM-direct run. Strict protocol: a scene
-    that failed every retry counts as 0 on each of its relations."""
+    """Per-scene records of the E6 LLM-direct run. Per-type convention as in
+    the paper's per-relation table: a scene whose output failed to parse after
+    every retry (1 of 1020 in that run) is excluded from per-type means
+    rather than scored 0 -- the strict fail-as-0 variant is reported for the
+    scene mean in the paper and differs only at the third decimal. Failed
+    scenes are recorded with null scores so the page can count them."""
     recs = {}
     for line in open(OUTPUTS / "llm_direct_v11" / "test_comp.jsonl",
                      encoding="utf-8"):
@@ -119,9 +123,9 @@ def run_llm(rows) -> dict:
         rec = recs.get(row["id"])
         rels = row["relations"]
         if rec is None or not rec.get("ok"):
-            out[row["id"]] = [{"mean": 0.0, "per": [
+            out[row["id"]] = [{"mean": None, "failed": True, "per": [
                 {"type": r["type"], "inter": r["reference"] != "listener",
-                 "rsr": 0.0} for r in rels]}]
+                 "rsr": None} for r in rels]}]
             continue
         per = []
         for pr, r in zip(rec["per_relation"], rels):
@@ -225,8 +229,12 @@ def main() -> int:
             cells.setdefault(c.split(":")[0], []).append(row["id"])
     all_ids = [r["id"] for r in rows]
 
+    failed = {s: sorted(sid for sid, draws in rec.items()
+                        if any(d.get("failed") for d in draws))
+              for s, rec in records.items()}
     result = {"m_draws": args.m, "seeds": "2000 + j (eval_diffusion protocol)",
-              "n_test_comp": len(rows), "cells": [], "per_type_comp": {}}
+              "n_test_comp": len(rows), "cells": [], "per_type_comp": {},
+              "failed_scenes": {s: v for s, v in failed.items() if v}}
     for cell in sorted(cells):
         ids = cells[cell]
         rel = CELL_RELATION[cell]

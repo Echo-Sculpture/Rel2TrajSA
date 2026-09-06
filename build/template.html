@@ -689,6 +689,12 @@ function renderCells(){
       reproduces the paper's per-relation numbers to within
       ${worst.toFixed(3)} RSR (${n} cells compared).`;
   }
+  const fs = C.failed_scenes || {};
+  for(const [k, ids] of Object.entries(fs))
+    note += ` ${label(k)} produced no parseable output for ${ids.length} of
+      ${C.n_test_comp} scenes (${ids.join(', ')}) after all retries; as in the
+      paper's per-relation table those scenes are excluded from its per-type
+      means rather than scored 0.`;
   document.getElementById('cellsnote').innerHTML = note;
 }
 
