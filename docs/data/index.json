@@ -443,6 +443,16 @@
    "at_right",
    "at_front_right"
   ],
+  "sector_counts": {
+   "at_front": 3138,
+   "at_front_left": 1117,
+   "at_left": 978,
+   "at_back_left": 916,
+   "at_back": 1632,
+   "at_back_right": 962,
+   "at_right": 972,
+   "at_front_right": 1079
+  },
   "listener_motion": {
    "above": 226,
    "approach": 1192,
@@ -540,5 +550,482 @@
   ],
   "oracle": 0.9933,
   "n_scenes": 60
+ },
+ "catalogue": [
+  {
+   "type": "at_front",
+   "family": "listener sector",
+   "ref": "listener",
+   "margin": "(22.5&deg; &minus; |az &minus; 0&deg;|) &middot; d",
+   "unit": "arc m",
+   "predicate": "azimuth within &plusmn;22.5&deg; of 0&deg; (0&deg; = front, +90&deg; = left)",
+   "motion_gated": false
+  },
+  {
+   "type": "at_front_left",
+   "family": "listener sector",
+   "ref": "listener",
+   "margin": "(22.5&deg; &minus; |az &minus; 45&deg;|) &middot; d",
+   "unit": "arc m",
+   "predicate": "azimuth within &plusmn;22.5&deg; of 45&deg; (0&deg; = front, +90&deg; = left)",
+   "motion_gated": false
+  },
+  {
+   "type": "at_left",
+   "family": "listener sector",
+   "ref": "listener",
+   "margin": "(22.5&deg; &minus; |az &minus; 90&deg;|) &middot; d",
+   "unit": "arc m",
+   "predicate": "azimuth within &plusmn;22.5&deg; of 90&deg; (0&deg; = front, +90&deg; = left)",
+   "motion_gated": false
+  },
+  {
+   "type": "at_back_left",
+   "family": "listener sector",
+   "ref": "listener",
+   "margin": "(22.5&deg; &minus; |az &minus; 135&deg;|) &middot; d",
+   "unit": "arc m",
+   "predicate": "azimuth within &plusmn;22.5&deg; of 135&deg; (0&deg; = front, +90&deg; = left)",
+   "motion_gated": false
+  },
+  {
+   "type": "at_back",
+   "family": "listener sector",
+   "ref": "listener",
+   "margin": "(22.5&deg; &minus; |az &minus; 180&deg;|) &middot; d",
+   "unit": "arc m",
+   "predicate": "azimuth within &plusmn;22.5&deg; of 180&deg; (0&deg; = front, +90&deg; = left)",
+   "motion_gated": false
+  },
+  {
+   "type": "at_back_right",
+   "family": "listener sector",
+   "ref": "listener",
+   "margin": "(22.5&deg; &minus; |az &minus; -135&deg;|) &middot; d",
+   "unit": "arc m",
+   "predicate": "azimuth within &plusmn;22.5&deg; of -135&deg; (0&deg; = front, +90&deg; = left)",
+   "motion_gated": false
+  },
+  {
+   "type": "at_right",
+   "family": "listener sector",
+   "ref": "listener",
+   "margin": "(22.5&deg; &minus; |az &minus; -90&deg;|) &middot; d",
+   "unit": "arc m",
+   "predicate": "azimuth within &plusmn;22.5&deg; of -90&deg; (0&deg; = front, +90&deg; = left)",
+   "motion_gated": false
+  },
+  {
+   "type": "at_front_right",
+   "family": "listener sector",
+   "ref": "listener",
+   "margin": "(22.5&deg; &minus; |az &minus; -45&deg;|) &middot; d",
+   "unit": "arc m",
+   "predicate": "azimuth within &plusmn;22.5&deg; of -45&deg; (0&deg; = front, +90&deg; = left)",
+   "motion_gated": false
+  },
+  {
+   "type": "approach",
+   "family": "listener-relative motion",
+   "ref": "listener",
+   "margin": "&minus;d&#775;",
+   "unit": "m/s",
+   "predicate": "distance to the listener decreasing",
+   "motion_gated": true
+  },
+  {
+   "type": "recede",
+   "family": "listener-relative motion",
+   "ref": "listener",
+   "margin": "d&#775;",
+   "unit": "m/s",
+   "predicate": "distance to the listener increasing",
+   "motion_gated": true
+  },
+  {
+   "type": "left_to_right",
+   "family": "listener-relative motion",
+   "ref": "listener",
+   "margin": "x&#775;",
+   "unit": "m/s",
+   "predicate": "moving toward the listener's right (x increasing)",
+   "motion_gated": true
+  },
+  {
+   "type": "right_to_left",
+   "family": "listener-relative motion",
+   "ref": "listener",
+   "margin": "&minus;x&#775;",
+   "unit": "m/s",
+   "predicate": "moving toward the listener's left (x decreasing)",
+   "motion_gated": true
+  },
+  {
+   "type": "clockwise",
+   "family": "listener-relative motion",
+   "ref": "listener",
+   "margin": "&minus;&phi;&#775; &middot; d",
+   "unit": "m/s (tangential)",
+   "predicate": "circling front &rarr; right &rarr; back seen from above (azimuth decreasing)",
+   "motion_gated": true
+  },
+  {
+   "type": "counterclockwise",
+   "family": "listener-relative motion",
+   "ref": "listener",
+   "margin": "&phi;&#775; &middot; d",
+   "unit": "m/s (tangential)",
+   "predicate": "circling front &rarr; left &rarr; back (azimuth increasing)",
+   "motion_gated": true
+  },
+  {
+   "type": "rising",
+   "family": "listener-relative motion",
+   "ref": "listener",
+   "margin": "z&#775;",
+   "unit": "m/s",
+   "predicate": "height increasing",
+   "motion_gated": true
+  },
+  {
+   "type": "descending",
+   "family": "listener-relative motion",
+   "ref": "listener",
+   "margin": "&minus;z&#775;",
+   "unit": "m/s",
+   "predicate": "height decreasing",
+   "motion_gated": true
+  },
+  {
+   "type": "overhead",
+   "family": "listener-relative position",
+   "ref": "listener",
+   "margin": "(el &minus; 55&deg;) &middot; d",
+   "unit": "arc m",
+   "predicate": "elevation above 55&deg;: the source passes over the head",
+   "motion_gated": false
+  },
+  {
+   "type": "above",
+   "family": "position",
+   "ref": "listener or source",
+   "margin": "z<sub>s</sub> &minus; z<sub>r</sub>",
+   "unit": "m",
+   "predicate": "higher than the reference (the listener, or another source)",
+   "motion_gated": false
+  },
+  {
+   "type": "below",
+   "family": "position",
+   "ref": "listener or source",
+   "margin": "z<sub>r</sub> &minus; z<sub>s</sub>",
+   "unit": "m",
+   "predicate": "lower than the reference",
+   "motion_gated": false
+  },
+  {
+   "type": "closer_than",
+   "family": "inter-source",
+   "ref": "source",
+   "margin": "d<sub>r</sub> &minus; d<sub>s</sub>",
+   "unit": "m",
+   "predicate": "nearer to the listener than the reference source",
+   "motion_gated": false
+  },
+  {
+   "type": "farther_than",
+   "family": "inter-source",
+   "ref": "source",
+   "margin": "d<sub>s</sub> &minus; d<sub>r</sub>",
+   "unit": "m",
+   "predicate": "farther from the listener than the reference source",
+   "motion_gated": false
+  },
+  {
+   "type": "left_of",
+   "family": "inter-source (projective)",
+   "ref": "source",
+   "margin": "lateral offset from the listener&rarr;reference ray, + = left",
+   "unit": "m",
+   "predicate": "appears to the left of the reference in the listener's view (with the listener as reference: x &lt; 0)",
+   "motion_gated": false
+  },
+  {
+   "type": "right_of",
+   "family": "inter-source (projective)",
+   "ref": "source",
+   "margin": "&minus; the same offset",
+   "unit": "m",
+   "predicate": "appears to the right of the reference in the listener's view",
+   "motion_gated": false
+  },
+  {
+   "type": "in_front_of",
+   "family": "inter-source (projective)",
+   "ref": "source",
+   "margin": "min(d<sub>r</sub> &minus; along, along, corridor &minus; |perp|)",
+   "unit": "m",
+   "predicate": "between the listener and the reference, inside a sight-line corridor of half-width max(1.6, 0.55 d<sub>r</sub>) m (with the listener as reference: y &gt; 0)",
+   "motion_gated": false
+  },
+  {
+   "type": "behind",
+   "family": "inter-source (projective)",
+   "ref": "source",
+   "margin": "min(along &minus; d<sub>r</sub>, corridor &minus; |perp|)",
+   "unit": "m",
+   "predicate": "past the reference along the listener's line of sight, inside the same corridor &mdash; the occluded side, not a world-axis comparison (with the listener as reference: y &lt; 0)",
+   "motion_gated": false
+  },
+  {
+   "type": "same_direction",
+   "family": "inter-source (grouping)",
+   "ref": "source",
+   "margin": "min(cos &theta;, 2.5 &minus; gap, min gap &minus; 0.25)",
+   "unit": "m / cosine",
+   "predicate": "headings aligned, the pair stays side by side within 2.5 m and never overlaps",
+   "motion_gated": true
+  },
+  {
+   "type": "opposite_direction",
+   "family": "inter-source (grouping)",
+   "ref": "source",
+   "margin": "min(3(&minus;cos &theta; &minus; 0.7), min gap &minus; 0.25, 0.5&middot;min(gap<sub>start</sub>, gap<sub>end</sub>) &minus; min gap)",
+   "unit": "m",
+   "predicate": "headings opposed (cos &theta; &le; &minus;0.7), the pair never overlaps, and the gap curve actually closes to a pass-by (V-shaped, scale-free)",
+   "motion_gated": true
+  },
+  {
+   "type": "follow",
+   "family": "inter-source (grouping)",
+   "ref": "source",
+   "margin": "min(3(cos &theta; &minus; 0.7), &minus;lag, 4 &minus; gap)",
+   "unit": "m",
+   "predicate": "heading aligned with the reference (cos &theta; &ge; 0.7), positioned behind it along its heading, within 4 m &mdash; crossing or diverging paths are not following",
+   "motion_gated": true
+  }
+ ],
+ "thresholds": {
+  "dead_zone": 0.05,
+  "motion_eps": 0.001,
+  "min_pair_sep": 0.25,
+  "side_by_side_max": 2.5,
+  "pass_depth_ratio": 0.5
+ },
+ "e6": {
+  "main": {
+   "GT": {
+    "rsr_val": "0.996",
+    "rsr_comp": "0.995",
+    "head": "0.000 / 0.000",
+    "jerk": "0.9 / 0.5",
+    "diversity": "—",
+    "s_per_scene": "n.r."
+   },
+   "RULE": {
+    "rsr_val": "0.963",
+    "rsr_comp": "0.919",
+    "head": "0.000 / 0.059",
+    "jerk": "5.5 / 8.0",
+    "diversity": "single solution",
+    "s_per_scene": "0.64"
+   },
+   "LLM": {
+    "rsr_val": "0.610",
+    "rsr_comp": "0.530",
+    "head": "0.000 / 0.000",
+    "jerk": "9.3 / 9.7",
+    "diversity": "single solution",
+    "s_per_scene": "5.08"
+   },
+   "INDEP": {
+    "rsr_val": "0.896",
+    "rsr_comp": "0.869",
+    "head": "0.001 / 0.000",
+    "jerk": "7.9 / 9.2",
+    "diversity": "1.53 / 1.56",
+    "s_per_scene": "n.r."
+   },
+   "REL2TRAJ": {
+    "rsr_val": "**0.987**",
+    "rsr_comp": "**0.983**",
+    "head": "0.000 / 0.000",
+    "jerk": "8.7 / 9.8",
+    "diversity": "0.51 / 0.44",
+    "s_per_scene": "n.r."
+   }
+  },
+  "per_relation": [
+   {
+    "relation": "follow",
+    "split": "val",
+    "n": "12",
+    "systems": {
+     "RULE": "1.000",
+     "LLM": "0.242",
+     "INDEP": "0.536",
+     "REL2TRAJ": "0.994"
+    }
+   },
+   {
+    "relation": "follow",
+    "split": "comp",
+    "n": "263",
+    "systems": {
+     "RULE": "0.999",
+     "LLM": "0.416",
+     "INDEP": "0.495",
+     "REL2TRAJ": "0.992"
+    }
+   },
+   {
+    "relation": "same_direction",
+    "split": "val",
+    "n": "25",
+    "systems": {
+     "RULE": "0.080",
+     "LLM": "1.000",
+     "INDEP": "0.544",
+     "REL2TRAJ": "0.887"
+    }
+   },
+   {
+    "relation": "same_direction",
+    "split": "comp",
+    "n": "6",
+    "systems": {
+     "RULE": "0.000",
+     "LLM": "1.000",
+     "INDEP": "0.667",
+     "REL2TRAJ": "1.000"
+    }
+   },
+   {
+    "relation": "opposite_direction",
+    "split": "val",
+    "n": "10",
+    "systems": {
+     "RULE": "0.400",
+     "LLM": "0.000",
+     "INDEP": "0.724",
+     "REL2TRAJ": "0.998"
+    }
+   },
+   {
+    "relation": "opposite_direction",
+    "split": "comp",
+    "n": "252",
+    "systems": {
+     "RULE": "0.524",
+     "LLM": "0.000",
+     "INDEP": "0.595",
+     "REL2TRAJ": "0.961"
+    }
+   },
+   {
+    "relation": "behind",
+    "split": "val",
+    "n": "17",
+    "systems": {
+     "RULE": "1.000",
+     "LLM": "0.000",
+     "INDEP": "0.100",
+     "REL2TRAJ": "1.000"
+    }
+   },
+   {
+    "relation": "behind",
+    "split": "comp",
+    "n": "147",
+    "systems": {
+     "RULE": "1.000",
+     "LLM": "0.619",
+     "INDEP": "0.003",
+     "REL2TRAJ": "0.780"
+    }
+   },
+   {
+    "relation": "closer_than",
+    "split": "val",
+    "n": "18",
+    "systems": {
+     "RULE": "1.000",
+     "LLM": "1.000",
+     "INDEP": "0.461",
+     "REL2TRAJ": "1.000"
+    }
+   },
+   {
+    "relation": "closer_than",
+    "split": "comp",
+    "n": "10",
+    "systems": {
+     "RULE": "1.000",
+     "LLM": "1.000",
+     "INDEP": "0.455",
+     "REL2TRAJ": "1.000"
+    }
+   },
+   {
+    "relation": "left_of",
+    "split": "val",
+    "n": "8",
+    "systems": {
+     "RULE": "1.000",
+     "LLM": "0.750",
+     "INDEP": "0.850",
+     "REL2TRAJ": "1.000"
+    }
+   },
+   {
+    "relation": "left_of",
+    "split": "comp",
+    "n": "6",
+    "systems": {
+     "RULE": "1.000",
+     "LLM": "0.833",
+     "INDEP": "1.000",
+     "REL2TRAJ": "1.000"
+    }
+   },
+   {
+    "relation": "right_of",
+    "split": "val",
+    "n": "12",
+    "systems": {
+     "RULE": "1.000",
+     "LLM": "0.583",
+     "INDEP": "0.867",
+     "REL2TRAJ": "1.000"
+    }
+   },
+   {
+    "relation": "right_of",
+    "split": "comp",
+    "n": "5",
+    "systems": {
+     "RULE": "1.000",
+     "LLM": "0.800",
+     "INDEP": "0.840",
+     "REL2TRAJ": "1.000"
+    }
+   }
+  ]
+ },
+ "cells": null,
+ "mirror": {
+  "worst": {
+   "REL2TRAJ": 0.0,
+   "INDEP": 0.0
+  },
+  "timesteps": [
+   999,
+   750,
+   500,
+   250,
+   50,
+   0
+  ],
+  "n_scenes": 12
  }
 }

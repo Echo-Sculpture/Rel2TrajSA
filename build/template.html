@@ -8,6 +8,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]})"></script>
 <style>
   :root{
     --ink:#1f2328; --ink-2:#4a5461; --mut:#6b7684; --line:#e3e7ec;
@@ -213,6 +217,8 @@
           <span class="vnote" id="tlabel" style="min-width:96px">0.0 / 0.0 s</span>
           <input type="range" id="time" min="0" max="1000" value="0">
           <label><input type="checkbox" id="ghost"> ground-truth overlay</label>
+          <label><input type="checkbox" id="alldraws"> all draws</label>
+          <label><input type="checkbox" id="mirrortest"> mirror test</label>
           <button id="reset">Reset view</button>
         </div>
         <div class="legend" id="legend"></div>
@@ -246,6 +252,163 @@
     the last column is the closest any source ever gets. Our own weak column is
     smoothness: the diffusion model is jerkier than the ground truth, which we
     report rather than hide.</p>
+  </div>
+</section>
+
+<div class="wrap"><div class="divider"></div></div>
+
+<section id="diversity">
+  <div class="wrap">
+    <p class="kicker">One text, many trajectories</p>
+    <h2>Diversity under constraint</h2>
+    <p class="lead">A description fixes the relations, not the trajectory:
+    &ldquo;a dog follows the car&rdquo; is satisfied by infinitely many pairs of
+    paths. A generative model should return different valid ones on different
+    draws. Tick <b>all draws</b> in the viewer to see the ten draws of the
+    selected system at once; the table gives the mean pairwise displacement
+    between draws for the scene on screen. Spread is only a virtue while the
+    relation still holds: the independent baseline spreads more than Rel2Traj
+    <em>because</em> it has no anchors to pin the sources down, and its
+    relation score collapses at the same time. That pairing &mdash; wider
+    spread, broken relation &mdash; is the signature of an under-determined
+    generator, not of a richer one.</p>
+    <div class="scroll"><div id="divtable"></div></div>
+    <p class="foot" id="divglobal"></p>
+  </div>
+</section>
+
+<div class="wrap"><div class="divider"></div></div>
+
+<section id="cells">
+  <div class="wrap">
+    <p class="kicker">Compositional generalisation</p>
+    <h2>Results per held-out combination</h2>
+    <p class="lead">Each held-out cell is a motion&ndash;relation combination
+    that never appears in training while its sibling does. For every cell, the
+    table reports the RSR of the cell's defining relation and the scene mean,
+    per system, over exactly the test scenes that carry that cell. Same
+    protocol as the paper's main table: per-type mean over all relation
+    instances and all draws, no selection.</p>
+    <div class="scroll"><div id="cellstable"></div></div>
+    <p class="foot" id="cellsnote"></p>
+    <h3>Per inter-source relation, whole splits</h3>
+    <p class="lead">The paper's per-relation breakdown, on the in-distribution
+    validation split and the compositional test split.</p>
+    <div class="scroll"><div id="e6table"></div></div>
+  </div>
+</section>
+
+<div class="wrap"><div class="divider"></div></div>
+
+<section id="equivariance">
+  <div class="wrap">
+    <p class="kicker">Why held-out chirality is not extrapolation</p>
+    <h2>Mirror equivariance, derived and measured</h2>
+    <div class="lead" id="derivation">
+      <p><b>Setting.</b> Coordinates are listener-centred: \(x\) to the right,
+      \(y\) ahead, \(z\) up; a trajectory is a sequence of keyframes
+      \(\tau \in \mathbb{R}^{N\times K\times 3}\). The left&ndash;right mirror is
+      \(M:(x,y,z)\mapsto(-x,y,z)\), i.e. azimuth \(\varphi\mapsto-\varphi\)
+      with distance and elevation unchanged. It generates the group
+      \(\mathbb{Z}_2=\{e,M\}\). On the discrete conditioning it acts by a
+      permutation \(\pi\) of the vocabulary: <i>left</i>&harr;<i>right</i>,
+      <i>clockwise</i>&harr;<i>counter-clockwise</i>, mirrored sectors and
+      anchor zones swapped, self-symmetric tokens fixed. \(\pi\) was validated
+      against the metric before any model was built: mirroring a scene and
+      permuting its labels leaves every RSR unchanged.</p>
+
+      <p><b>Typed features.</b> Every hidden vector lives in
+      \(V=V_+\oplus V_-\) and the mirror acts as
+      $$\rho(M)=\operatorname{diag}(\underbrace{+1,\dots,+1}_{d_+},
+      \underbrace{-1,\dots,-1}_{d_-}),$$
+      \(V_+\) holding what a mirror leaves alone (how far, how high, front or
+      back) and \(V_-\) what it negates (\(x\), azimuth, handedness). A map
+      \(f\) between typed spaces is <em>equivariant</em> when
+      \(f(\rho(M)v)=\rho(M)f(v)\). Compositions of equivariant maps are
+      equivariant, so it is enough to make each block equivariant and chain
+      them.</p>
+
+      <p><b>Blocks.</b> Each of the six building blocks satisfies the identity
+      exactly, by construction rather than by a penalty:</p>
+      <ol>
+        <li><i>Embedding.</i> A mirror pair \((\tau,\pi\tau)\) shares its
+        symmetric part and negates its antisymmetric part; a self-symmetric
+        token has zero antisymmetric part. Hence
+        \(e(\pi\tau)=\rho(M)\,e(\tau)\).</li>
+        <li><i>Linear.</i> \(W=\operatorname{diag}(W_{++},W_{--})\) with bias
+        \(b\in V_+\) only. Then \(W\rho v+b=\rho(Wv+b)\) because \(\rho\)
+        commutes with a block-diagonal matrix and fixes \(b\). An off-diagonal
+        block would turn a symmetric feature into an antisymmetric one; a bias
+        on \(V_-\) would break \(a\mapsto-a\).</li>
+        <li><i>Normalisation.</i> LayerNorm on \(V_+\); on \(V_-\) only an RMS
+        scale, since \(\mathrm{rms}(-a)=\mathrm{rms}(a)\) keeps \(a/\mathrm{rms}(a)\)
+        odd, whereas mean-centring would add a constant to an odd channel.</li>
+        <li><i>Nonlinearity.</i> GELU on \(V_+\), where \(M\) acts trivially.
+        On \(V_-\): \(a\mapsto g(s,a^{2})\odot a\) with a gate \(g\) computed
+        from invariants only, so the product stays odd.</li>
+        <li><i>Attention.</i> With typed \(q,k\), every coordinate product
+        \(q_ik_i\) is invariant (\((+)(+)\) or \((-)(-)\)), so scores and
+        softmax weights are invariant and a weighted sum of typed values is
+        typed. \(Q,K,V,O\) are linear blocks as in (2).</li>
+        <li><i>Geometry in and out.</i> \(x\) is wired to \(V_-\), \((y,z)\) to
+        \(V_+\); the output head maps \(V_-\to x\) without bias and
+        \(V_+\to(y,z)\). Timestep and keyframe-index embeddings are invariant
+        and enter \(V_+\) only.</li>
+      </ol>
+
+      <p><b>Consequence for the network.</b> Writing \(\mathrm{flip}_x\) for
+      the sign flip of the \(x\) channel of a keyframe tensor,
+      $$\operatorname{enc}(\pi\cdot\text{scene})=\rho(M)\operatorname{enc}(\text{scene}),
+      \qquad
+      \epsilon_\theta\!\big(\mathrm{flip}_x x_t,\,t,\,\rho(M)z\big)
+      =\mathrm{flip}_x\,\epsilon_\theta(x_t,t,z).$$</p>
+
+      <p><b>Consequence for the sampler.</b> The DDIM step with \(\eta=0\) is
+      $$\hat x_0=\frac{x_t-\sqrt{1-\bar\alpha_t}\,\epsilon}{\sqrt{\bar\alpha_t}},
+      \qquad
+      x_{t-1}=\sqrt{\bar\alpha_{t-1}}\,\hat x_0+\sqrt{1-\bar\alpha_{t-1}}\,\epsilon,$$
+      linear in \((x_t,\epsilon)\) with scalar coefficients, and the clamp on
+      \(\hat x_0\) is symmetric about zero, so \(\mathrm{flip}_x\) commutes with
+      every step. By induction over the chain,
+      $$\operatorname{sample}(\pi\cdot\text{scene},\,\mathrm{flip}_x x_T)
+      =\mathrm{flip}_x\operatorname{sample}(\text{scene},\,x_T).$$
+      Since \(x_T\sim\mathcal N(0,I)\) is mirror-invariant in distribution, the
+      generated distribution itself is equivariant:
+      \(p(\tau\mid\pi\cdot\text{scene})=p(\mathrm{flip}_x\tau\mid\text{scene})\).</p>
+
+      <p><b>What this buys.</b> A held-out chirality cell is the mirror image of
+      a training cell: a counter-clockwise half circle is a clockwise one
+      mirrored, following a right-to-left source is following a left-to-right
+      one mirrored. The identity above makes generating the held-out case
+      <em>the same computation</em> as generating the trained case and
+      flipping the sign of \(x\). Nothing is extrapolated. A soft symmetry
+      penalty, tried first, reached zero on its training support and still
+      failed on the held-out cells; a structural identity has no support to
+      leave.</p>
+
+      <p><b>Why only the mirror.</b> The listener frame has no other symmetry
+      that spatial language respects: front and behind are different words,
+      up is not down, and a rotation would erase exactly the distinctions the
+      text asks for. Left&ndash;right chirality is the one symmetry of the
+      description language, so it is the one built into the network.</p>
+    </div>
+    <h3>Measured</h3>
+    <p class="lead">Every identity above was checked numerically on the demo
+    scenes for both learned systems, which share the same equivariant blocks.
+    The viewer's <b>mirror test</b> overlays the sample for the mirrored
+    prompt on the mirror image of the original sample: the two coincide.</p>
+    <div class="scroll"><div id="mirrortable"></div></div>
+  </div>
+</section>
+
+<div class="wrap"><div class="divider"></div></div>
+
+<section id="catalogue">
+  <div class="wrap">
+    <p class="kicker">Reference</p>
+    <h2>The complete relation geometry</h2>
+    <p class="lead" id="catnote"></p>
+    <div class="scroll"><div id="cattable"></div></div>
   </div>
 </section>
 
@@ -344,7 +507,8 @@
 <script>
 const BUILD = '{{BUILD}}';   // cache key: changes whenever the data changes
 const state = {meta:null, scene:null, cond:"REL2TRAJ", draw:0,
-               tNorm:0, playing:false, ghost:false};
+               tNorm:0, playing:false, ghost:false, allDraws:false,
+               mirror:false};
 let yaw=-0.6, pitch=0.5, dist=15;
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 const snd=document.getElementById('snd');
@@ -364,6 +528,7 @@ async function boot(){
     bar.appendChild(b);
   });
   renderProtocol(); renderVocab(); renderParser();
+  renderCells(); renderE6(); renderCatalogue();
   loadScene(0);
 }
 
@@ -375,6 +540,7 @@ async function loadScene(i){
   state.idx = i; state.draw = 0; state.tNorm = 0; stop();
   if(!state.scene.conds[state.cond]) state.cond = 'GT';
   renderPrompt(); renderConds(); renderDraws(); renderTable(); renderGeom();
+  renderDiversity(); renderMirror();
   setAudio(true); draw();
 }
 
@@ -422,9 +588,157 @@ function renderConds(){
              <br>draw ${j+1} on screen: ${fmt(d.target)}`
           : `single solution &middot; scene mean ${fmt(d.mean)}`}</div>`;
     b.onclick = ()=>{ state.cond=key; renderConds(); renderDraws();
-                      setAudio(false); draw(); };
+                      renderMirror(); setAudio(false); draw(); };
     box.appendChild(b);
   }
+  const cur = S.conds[state.cond];
+  const mt = document.getElementById('mirrortest');
+  mt.disabled = !cur.mirror; if(!cur.mirror){ mt.checked=false; state.mirror=false; }
+  const ad = document.getElementById('alldraws');
+  ad.disabled = cur.draws.length < 2;
+}
+
+function renderDiversity(){
+  const S = state.scene, keys = state.meta.conds.map(c=>c.key)
+    .filter(k=>S.conds[k]);
+  let html = `<table><thead><tr><th>system</th>
+    <th class="num">draws</th><th class="num">spread between draws (m)</th>
+    <th class="num">relation RSR, mean over draws</th></tr></thead><tbody>`;
+  for(const k of keys){
+    const c = S.conds[k], dv = c.diversity;
+    html += `<tr><td>${c.label}</td><td class="num">${c.draws.length}</td>
+      <td class="num">${dv===null||dv===undefined ? '<span style="color:var(--mut)">single solution</span>' : dv.toFixed(2)}</td>
+      <td class="num">${fmt(avg(c.draws.map(d=>d.target)))}</td></tr>`;
+  }
+  html += `</tbody></table>`;
+  document.getElementById('divtable').innerHTML = html;
+  const e6 = state.meta.e6;
+  if(e6 && e6.main){
+    const g = k => (e6.main[k]||{}).diversity || '&mdash;';
+    document.getElementById('divglobal').innerHTML =
+      `Over the whole validation / compositional splits (paper protocol,
+       ten draws per scene): Rel2Traj ${g('REL2TRAJ')} m, independent
+       per-source ${g('INDEP')} m; the rule solver and LLM-direct return one
+       solution per scene. Spread is the mean pairwise displacement between
+       draws, averaged over sources and frames.`;
+  }
+}
+
+function renderMirror(){
+  const S = state.scene, box = document.getElementById('mirrortable');
+  const m = state.meta.mirror;
+  const f = v => (v===null||v===undefined) ? '&mdash;' :
+                 v===0 ? '0 (exact)' : v.toExponential(1);
+  let html = `<table><thead><tr><th>system</th>
+    <th class="num">encoder identity</th>
+    <th class="num">denoiser identity, ${m ? m.timesteps.length : 0} timesteps</th>
+    <th class="num">full sampler (m)</th><th class="num">sample scale (m)</th>
+    <th class="num">worst over ${m ? m.n_scenes : 0} scenes (m)</th></tr></thead><tbody>`;
+  for(const k of ['REL2TRAJ','INDEP']){
+    const c = S.conds[k]; if(!c || !c.mirror) continue;
+    const e = c.mirror.err;
+    html += `<tr><td>${c.label} <span class="note">(this scene)</span></td>
+      <td class="num">${f(e.err_encoder)}</td><td class="num">${f(e.err_denoiser)}</td>
+      <td class="num">${f(e.err_sampler_m)}</td>
+      <td class="num">${e.sample_scale_m ? e.sample_scale_m.toFixed(2) : '&mdash;'}</td>
+      <td class="num">${m ? f(m.worst[k]) : '&mdash;'}</td></tr>`;
+  }
+  html += `</tbody></table>`;
+  box.innerHTML = html;
+}
+
+function renderCells(){
+  const C = state.meta.cells, box = document.getElementById('cellstable');
+  const keys = state.meta.conds.map(c=>c.key);
+  const label = k => state.meta.conds.find(c=>c.key===k).label;
+  if(!C){ box.innerHTML = '<p class="note">per-cell evaluation not built yet</p>'; return; }
+  let html = `<table><thead><tr><th>cell</th><th>defining relation</th>
+    <th class="num">test scenes</th>` +
+    keys.map(k=>`<th class="num">${label(k)}</th>`).join('') + `</tr></thead><tbody>`;
+  for(const cell of C.cells){
+    const vals = keys.map(k=>(cell.systems[k]||{}).target);
+    const best = Math.max(...vals.filter(v=>v!==null&&v!==undefined));
+    html += `<tr><td><b>${cell.cell}</b></td>
+      <td>${cell.relation}${cell.inter ? ' <span class="tag inter">inter-source</span>' : ''}</td>
+      <td class="num">${cell.n_scenes}</td>` +
+      keys.map(k=>{ const s = cell.systems[k]||{}; const v = s.target;
+        return `<td class="num ${v===best?'best':''}">${fmt(v)}<br>
+          <span class="note">scene ${fmt(s.scene_mean)}</span></td>`; }).join('') +
+      `</tr>`;
+  }
+  html += `</tbody></table>`;
+  box.innerHTML = html;
+  // reproduction check against the paper's per-relation table
+  const e6 = state.meta.e6; let note =
+    `Cell relation = the relation the held-out combination is defined on;
+     each cell reports its per-type mean over all instances and all
+     ${C.m_draws} draws (seeds ${C.seeds}). Scene = mean RSR over every
+     relation in those scenes.`;
+  if(e6 && e6.per_relation && C.per_type_comp){
+    let worst = 0, n = 0;
+    for(const row of e6.per_relation){
+      if(row.split !== 'comp') continue;
+      const mine = C.per_type_comp[row.relation]; if(!mine) continue;
+      for(const k of ['RULE','LLM','INDEP','REL2TRAJ']){
+        const a = parseFloat(row.systems[k]), b = mine[k];
+        if(isNaN(a) || b===null || b===undefined) continue;
+        worst = Math.max(worst, Math.abs(a-b)); n++;
+      }
+    }
+    note += ` Re-running the whole compositional split for this table
+      reproduces the paper's per-relation numbers to within
+      ${worst.toFixed(3)} RSR (${n} cells compared).`;
+  }
+  document.getElementById('cellsnote').innerHTML = note;
+}
+
+function renderE6(){
+  const e6 = state.meta.e6, box = document.getElementById('e6table');
+  if(!e6){ box.innerHTML=''; return; }
+  const keys = ['RULE','LLM','INDEP','REL2TRAJ'];
+  const label = k => state.meta.conds.find(c=>c.key===k).label;
+  let html = `<table><thead><tr><th>relation</th><th>split</th>` +
+    keys.map(k=>`<th class="num">${label(k)}</th>`).join('') +
+    `<th class="num">instances</th></tr></thead><tbody>`;
+  for(const r of e6.per_relation){
+    const vals = keys.map(k=>parseFloat(r.systems[k]));
+    const best = Math.max(...vals.filter(v=>!isNaN(v)));
+    html += `<tr><td>${r.relation}</td><td>${r.split==='val'?'validation':'compositional'}</td>` +
+      keys.map((k,i)=>`<td class="num ${vals[i]===best?'best':''}">${r.systems[k]}</td>`).join('') +
+      `<td class="num">${r.n}</td></tr>`;
+  }
+  html += `</tbody></table>`;
+  box.innerHTML = html;
+}
+
+function renderCatalogue(){
+  const cat = state.meta.catalogue, v = state.meta.vocab, th = state.meta.thresholds;
+  const count = r => {
+    const a = (v.sector_counts||{})[r.type] || (v.listener_motion||{})[r.type] || 0;
+    const b = (v.inter||{})[r.type] || 0;
+    return (a||b) ? `${a ? a+' listener' : ''}${a&&b ? ', ' : ''}${b ? b+' inter-source' : ''}` :
+           '<span style="color:var(--mut)">defined, not instantiated</span>';
+  };
+  let html = `<table><thead><tr><th>relation</th><th>family</th>
+    <th>reference</th><th>holds when</th><th>margin</th><th>unit</th>
+    <th>motion-gated</th><th>instances in dataset</th></tr></thead><tbody>`;
+  for(const r of cat){
+    html += `<tr><td><b>${r.type}</b></td><td>${r.family}</td><td>${r.ref}</td>
+      <td>${r.predicate}</td><td>${r.margin}</td><td>${r.unit}</td>
+      <td>${r.motion_gated ? 'yes' : ''}</td><td>${count(r)}</td></tr>`;
+  }
+  html += `</tbody></table>`;
+  document.getElementById('cattable').innerHTML = html;
+  document.getElementById('catnote').innerHTML =
+    `All ${cat.length} relation types the geometry defines, transcribed from
+     the evaluation code. Each is a signed per-frame margin; a frame satisfies
+     the relation when the margin exceeds the dead-zone of ${th.dead_zone}, and
+     RSR is the satisfied share of in-scope frames. Motion-gated relations
+     count only frames where the subject moves faster than ${th.motion_eps}
+     m/s, because a direction is undefined at rest. Grouping relations also
+     require the pair never to come closer than ${th.min_pair_sep} m. Margins
+     are expressed in metres (or metres per second) so that the same
+     expression serves as metric, training hinge and inference guidance.`;
 }
 
 function renderDraws(){
@@ -619,6 +933,10 @@ document.getElementById('time').oninput = e=>{
 };
 document.getElementById('ghost').onchange = e=>{
   state.ghost = e.target.checked; draw(); };
+document.getElementById('alldraws').onchange = e=>{
+  state.allDraws = e.target.checked; draw(); };
+document.getElementById('mirrortest').onchange = e=>{
+  state.mirror = e.target.checked; draw(); };
 document.getElementById('reset').onclick = ()=>{
   yaw=-0.6; pitch=0.5; dist=15; draw(); };
 document.getElementById('copybib').onclick = e=>{
@@ -697,14 +1015,31 @@ function draw(){
       drawPath(s, S.sources[i].color, tMax, T,
                {alpha:0.3, dash:[5,5], markers:false}));
   }
-  d.src.forEach((s,i)=> drawPath(s, S.sources[i].color, tMax, T, {}));
 
-  const [ia,ib] = S.target_idx, st = d.state[k];
-  const A=d.src[ia], B=d.src[ib];
-  if(st >= 0)
-    seg([A.x[k],A.y[k],A.z[k]], [B.x[k],B.y[k],B.z[k]],
-        st===1 ? '#39c07c' : '#e05c5c', 2.2, 0.9, st===1 ? [] : [6,4]);
-  drawTimeline(d.state, k);
+  if(state.mirror && c.mirror){
+    // mirror test: the mirrored-prompt sample (solid) over the mirror image of
+    // the original sample (dashed white). Equivariance says they coincide.
+    c.mirror.orig.forEach((s,i)=>
+      drawPath({x:s.x.map(v=>-v), y:s.y, z:s.z}, '#ffffff', tMax, T,
+               {alpha:0.85, dash:[4,4], markers:false}));
+    c.mirror.mirror.forEach((s,i)=>
+      drawPath(s, S.sources[i].color, tMax, T, {alpha:0.8}));
+    drawTimeline(d.state, k);
+  } else {
+    if(state.allDraws && c.draws.length > 1){
+      c.draws.forEach((dd,j)=>{ if(j===Math.min(state.draw, c.draws.length-1)) return;
+        dd.src.forEach((s,i)=> drawPath(s, S.sources[i].color, tMax, T,
+                                        {alpha:0.22, markers:false})); });
+    }
+    d.src.forEach((s,i)=> drawPath(s, S.sources[i].color, tMax, T, {}));
+
+    const [ia,ib] = S.target_idx, st = d.state[k];
+    const A=d.src[ia], B=d.src[ib];
+    if(st >= 0)
+      seg([A.x[k],A.y[k],A.z[k]], [B.x[k],B.y[k],B.z[k]],
+          st===1 ? '#39c07c' : '#e05c5c', 2.2, 0.9, st===1 ? [] : [6,4]);
+    drawTimeline(d.state, k);
+  }
 
   document.getElementById('tlabel').textContent =
     tMax.toFixed(1)+' / '+S.duration.toFixed(1)+' s';
