@@ -509,7 +509,12 @@ const BUILD = '{{BUILD}}';   // cache key: changes whenever the data changes
 const state = {meta:null, scene:null, cond:"REL2TRAJ", draw:0,
                tNorm:0, playing:false, ghost:false, allDraws:false,
                mirror:false};
-let yaw=-0.6, pitch=0.5, dist=15;
+// camera: yaw/pitch orbit, a FIXED perspective strength, and a zoom that
+// scales the image. (Scaling the perspective distance instead, as an earlier
+// version did, changes foreshortening rather than size -- it reads as the
+// scene warping, not as zoom.)
+let yaw=-0.6, pitch=0.5, zoom=1;
+const PERSP = 18;
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 const snd=document.getElementById('snd');
 
@@ -944,7 +949,7 @@ document.getElementById('alldraws').onchange = e=>{
 document.getElementById('mirrortest').onchange = e=>{
   state.mirror = e.target.checked; draw(); };
 document.getElementById('reset').onclick = ()=>{
-  yaw=-0.6; pitch=0.5; dist=15; draw(); };
+  yaw=-0.6; pitch=0.5; zoom=1; draw(); };
 document.getElementById('copybib').onclick = e=>{
   navigator.clipboard.writeText(document.getElementById('bib').textContent);
   e.target.textContent = 'Copied'; setTimeout(()=>e.target.textContent='Copy', 1400);
@@ -955,7 +960,7 @@ function project(p){
   const sy=Math.sin(yaw), cy=Math.cos(yaw), sp=Math.sin(pitch), cp=Math.cos(pitch);
   const x = p[0]*cy - p[1]*sy, y = p[0]*sy + p[1]*cy, z = p[2];
   const y2 = y*cp - z*sp, z2 = y*sp + z*cp;
-  const d = dist/(dist+y2), scale = Math.min(cv.width,cv.height)*0.085;
+  const d = PERSP/(PERSP+y2), scale = Math.min(cv.width,cv.height)*0.085*zoom;
   return [cv.width/2 + x*d*scale, cv.height/2 - z2*d*scale, d];
 }
 function seg(a,b,color,w,alpha,dash){
@@ -1073,7 +1078,7 @@ cv.addEventListener('pointermove', e=>{
   px=e.clientX; py=e.clientY; draw(); });
 cv.addEventListener('pointerup', ()=>{ dragging=false; cv.classList.remove('drag'); });
 cv.addEventListener('wheel', e=>{ e.preventDefault();
-  dist = Math.max(6, Math.min(38, dist*(e.deltaY>0?1.1:0.9))); draw(); },
+  zoom = Math.max(0.35, Math.min(4, zoom*(e.deltaY>0?0.9:1.1))); draw(); },
   {passive:false});
 window.addEventListener('resize', draw);
 boot();
