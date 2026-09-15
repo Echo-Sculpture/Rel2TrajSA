@@ -110,12 +110,11 @@ def parser_info() -> dict:
     def load(name):
         p = OUTPUTS / name
         return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
-    # full = the 242-scene validation run the paper quotes (fine-tuned
-    # parser); few = Qwen3-8B few-shot without fine-tuning, 60 scenes;
-    # para = the fine-tuned parser on paraphrased sentences, 60 scenes
-    full, few, para = (load("parser_v2_e2e_val_full.json"),
-                       load("parser_v2_ablate60.json"),
-                       load("e7b_paraphrase_eval.json"))
+    # Exactly what the paper states about the parser: the 242-scene
+    # validation run. The few-shot control and the paraphrase-robustness
+    # experiment exist in the research repo but are not in the paper, so
+    # they are not on the page either.
+    full = load("parser_v2_e2e_val_full.json")
     anchors = full.get("anchor_field_acc") or {}
     return {
         "base": "Qwen3-4B",
@@ -127,12 +126,6 @@ def parser_info() -> dict:
         "rows": [
             ("fine-tuned parser", full.get("n_scenes"), full.get("motion_acc"),
              full.get("relation_F1"), full.get("e2e_rsr_parsed_bestofM")),
-            ("Qwen3-8B, few-shot prompting, no fine-tuning",
-             few.get("n_scenes"), few.get("motion_acc"), few.get("relation_F1"),
-             few.get("e2e_rsr_parsed_bestofM")),
-            ("fine-tuned parser, paraphrased sentences", para.get("n_scenes"),
-             para.get("motion_acc"), para.get("relation_F1"),
-             para.get("e2e_rsr_parsed_bestofM")),
         ],
         "oracle": full.get("e2e_rsr_oracle_bestofM"),
         "n_scenes": full.get("n_scenes"),

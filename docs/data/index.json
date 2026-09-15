@@ -538,20 +538,6 @@
     1.0,
     1.0,
     0.9687
-   ],
-   [
-    "Qwen3-8B, few-shot prompting, no fine-tuning",
-    60,
-    0.8855,
-    0.6865,
-    0.8866
-   ],
-   [
-    "fine-tuned parser, paraphrased sentences",
-    60,
-    0.9618,
-    0.9885,
-    0.9651
    ]
   ],
   "oracle": 0.9967,
