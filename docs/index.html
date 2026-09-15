@@ -223,7 +223,10 @@
     The link drawn between the two related sources is <b>green while the
     geometric constraint holds and red while it fails</b> &mdash; the strip
     below the view is that same signal over the whole clip, and the relation
-    satisfaction rate is its green share.</p>
+    satisfaction rate is its green share. As in the paper's tables, every
+    system except LLM-direct is conditioned on the scene's ground-truth
+    structure (sources, relations, anchors), so the comparison isolates
+    generation from parsing; LLM-direct reads the raw sentence.</p>
 
     <div class="scenebar" id="scenebar"></div>
     <div class="promptcard" id="prompt"></div>
@@ -319,17 +322,6 @@
 
 <div class="wrap"><div class="divider"></div></div>
 
-<section id="catalogue">
-  <div class="wrap">
-    <p class="kicker">Reference</p>
-    <h2>The complete relation geometry</h2>
-    <p class="lead" id="catnote"></p>
-    <div class="scroll"><div id="cattable"></div></div>
-  </div>
-</section>
-
-<div class="wrap"><div class="divider"></div></div>
-
 <section id="language">
   <div class="wrap">
     <p class="kicker">What the system can be told</p>
@@ -346,6 +338,11 @@
     model was trained. Each keeps a sibling in training, so what is tested is
     <em>composition</em>, not an unseen relation type.</p>
     <div class="scroll"><div id="heldouttable"></div></div>
+
+    <details style="margin-top:26px"><summary>How each relation is scored</summary>
+      <p class="foot" id="catnote"></p>
+      <div class="scroll"><div id="cattable"></div></div>
+    </details>
   </div>
 </section>
 
@@ -371,7 +368,7 @@
 
 <audio id="snd" preload="none"></audio>
 <script>
-const BUILD = 'd2ed569d96';   // cache key: changes whenever the data changes
+const BUILD = '533709d8bf';   // cache key: changes whenever the data changes
 const state = {meta:null, scene:null, cond:"REL2TRAJ", draw:0,
                tNorm:0, playing:false, ghost:false, allDraws:false};
 // camera: yaw/pitch orbit, a FIXED perspective strength, and a zoom that
@@ -563,33 +560,33 @@ function renderE6(){
 }
 
 function renderCatalogue(){
-  const cat = state.meta.catalogue, v = state.meta.vocab, th = state.meta.thresholds;
-  const count = r => {
-    const a = (v.sector_counts||{})[r.type] || (v.listener_motion||{})[r.type] || 0;
-    const b = (v.inter||{})[r.type] || 0;
-    return (a||b) ? `${a ? a+' listener' : ''}${a&&b ? ', ' : ''}${b ? b+' inter-source' : ''}` :
-           '<span style="color:var(--mut)">defined, not instantiated</span>';
-  };
+  const cat = state.meta.catalogue, th = state.meta.thresholds;
+  const fam = {};
+  cat.forEach(r=>{ fam[r.family] = (fam[r.family]||0)+1; });
   let html = `<table><thead><tr><th>relation</th><th>family</th>
     <th>reference</th><th>holds when</th><th>margin</th><th>unit</th>
-    <th>motion-gated</th><th>instances in dataset</th></tr></thead><tbody>`;
+    <th>motion-gated</th><th class="num">instances</th></tr></thead><tbody>`;
   for(const r of cat){
     html += `<tr><td><b>${r.type}</b></td><td>${r.family}</td><td>${r.ref}</td>
       <td>${r.predicate}</td><td>${r.margin}</td><td>${r.unit}</td>
-      <td>${r.motion_gated ? 'yes' : ''}</td><td>${count(r)}</td></tr>`;
+      <td>${r.motion_gated ? 'yes' : ''}</td>
+      <td class="num">${r.n_listener + r.n_inter}</td></tr>`;
   }
   html += `</tbody></table>`;
   document.getElementById('cattable').innerHTML = html;
   document.getElementById('catnote').innerHTML =
-    `All ${cat.length} relation types the geometry defines, transcribed from
-     the evaluation code. Each is a signed per-frame margin; a frame satisfies
-     the relation when the margin exceeds the dead-zone of ${th.dead_zone}, and
-     RSR is the satisfied share of in-scope frames. Motion-gated relations
-     count only frames where the subject moves faster than ${th.motion_eps}
-     m/s, because a direction is undefined at rest. Grouping relations also
-     require the pair never to come closer than ${th.min_pair_sep} m. Margins
-     are expressed in metres (or metres per second) so that the same
-     expression serves as metric, training hinge and inference guidance.`;
+    `The ${cat.length} relation words of the language, grouped as in the paper
+     (${fam['listener sector']} listener sectors, ${fam['listener-relative']}
+     listener-relative, ${fam['inter-source']} inter-source), each transcribed
+     from the evaluation code. Every relation is a signed per-frame margin; a
+     frame is satisfied when the margin exceeds the dead zone
+     &tau; = ${th.dead_zone}, and RSR is the satisfied share of in-scope
+     frames &mdash; the frames within the relation's time scope and, for
+     motion relations, only those in which the source moves. Positional
+     margins are in metres and motion margins in m/s; same_direction,
+     opposite_direction and follow take the minimum of a heading cosine and
+     pair distances in metres, and the first two also require the pair never
+     to come closer than ${th.min_pair_sep} m.`;
 }
 
 function renderDraws(){
@@ -700,22 +697,30 @@ function renderVocab(){
 
 function renderParser(){
   const p = state.meta.parser;
+  const pct = v => (v===null||v===undefined) ? '&mdash;' : Math.round(100*v)+'%';
   document.getElementById('parserlead').innerHTML =
-    `A sentence has to become conditioning before anything can be generated.
-     That step is a <b>${p.base}</b> parser fine-tuned with ${p.adapter},
-     trained on ${p.train}; it emits the relation graph and the per-source
-     anchors that the trajectory model consumes. Evaluated on
-     ${p.n_scenes} held-out scenes.`;
+    `The parser is a <b>${p.base}</b> model fine-tuned with ${p.adapter} on
+     ${p.train}. It converts a description into three fields: the list of
+     sources, each with a motion type; the list of relations, each with a
+     type, a subject, a reference (another source or the listener) and an
+     optional time scope; and the ten discrete anchor fields per source.
+     On the ${p.n_scenes} validation scenes it recovers every motion type and
+     relation exactly and fills the anchor fields with
+     ${pct(p.anchor_min)}&ndash;${pct(p.anchor_max)} accuracy. End-to-end RSR
+     below is the trajectory score when Rel2Traj is conditioned on the parse
+     instead of the ground-truth structure (best of ${p.m_draws} draws), against
+     the ground-truth-structure ceiling.`;
   const f = v => (v===null||v===undefined) ? '&mdash;' : v.toFixed(3);
   document.getElementById('parsertable').innerHTML =
-    `<table><thead><tr><th>parser</th><th class="num">motion accuracy</th>
-      <th class="num">relation F1</th>
+    `<table><thead><tr><th>parser</th><th class="num">scenes</th>
+      <th class="num">motion accuracy</th><th class="num">relation F1</th>
       <th class="num">end-to-end RSR</th></tr></thead><tbody>` +
-    p.rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${f(r[1])}</td>
-      <td class="num">${f(r[2])}</td><td class="num">${f(r[3])}</td></tr>`).join('') +
-    `<tr><td style="color:var(--mut)">ground-truth graph (oracle ceiling)</td>
-      <td class="num">&mdash;</td><td class="num">&mdash;</td>
-      <td class="num">${f(p.oracle)}</td></tr>` +
+    p.rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1] ?? '&mdash;'}</td>
+      <td class="num">${f(r[2])}</td><td class="num">${f(r[3])}</td>
+      <td class="num">${f(r[4])}</td></tr>`).join('') +
+    `<tr><td style="color:var(--mut)">ground-truth structure (ceiling)</td>
+      <td class="num">${p.n_scenes}</td><td class="num">&mdash;</td>
+      <td class="num">&mdash;</td><td class="num">${f(p.oracle)}</td></tr>` +
     `</tbody></table>`;
 }
 

@@ -110,25 +110,32 @@ def parser_info() -> dict:
     def load(name):
         p = OUTPUTS / name
         return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
-    ft, few, para = (load("parser_v2_ablate60_lora.json"),
-                     load("parser_v2_ablate60.json"),
-                     load("e7b_paraphrase_eval.json"))
+    # full = the 242-scene validation run the paper quotes (fine-tuned
+    # parser); few = Qwen3-8B few-shot without fine-tuning, 60 scenes;
+    # para = the fine-tuned parser on paraphrased sentences, 60 scenes
+    full, few, para = (load("parser_v2_e2e_val_full.json"),
+                       load("parser_v2_ablate60.json"),
+                       load("e7b_paraphrase_eval.json"))
+    anchors = full.get("anchor_field_acc") or {}
     return {
         "base": "Qwen3-4B",
-        "adapter": "QLoRA, 4-bit NF4 base, LoRA r=16 alpha=32 on the "
-                   "attention and MLP projections",
-        "train": "4891 sentence / graph pairs from the training split",
+        "adapter": "QLoRA (r = 16, &alpha; = 32)",
+        "train": "4891 description&ndash;structure pairs of the training split",
+        "m_draws": (full.get("config") or {}).get("m"),
+        "anchor_min": min(anchors.values()) if anchors else None,
+        "anchor_max": max(anchors.values()) if anchors else None,
         "rows": [
-            ("fine-tuned parser", ft.get("motion_acc"), ft.get("relation_F1"),
-             ft.get("e2e_rsr_parsed_bestofM")),
-            ("same model, few-shot prompting only", few.get("motion_acc"),
-             few.get("relation_F1"), few.get("e2e_rsr_parsed_bestofM")),
-            ("fine-tuned parser, paraphrased sentences",
+            ("fine-tuned parser", full.get("n_scenes"), full.get("motion_acc"),
+             full.get("relation_F1"), full.get("e2e_rsr_parsed_bestofM")),
+            ("Qwen3-8B, few-shot prompting, no fine-tuning",
+             few.get("n_scenes"), few.get("motion_acc"), few.get("relation_F1"),
+             few.get("e2e_rsr_parsed_bestofM")),
+            ("fine-tuned parser, paraphrased sentences", para.get("n_scenes"),
              para.get("motion_acc"), para.get("relation_F1"),
              para.get("e2e_rsr_parsed_bestofM")),
         ],
-        "oracle": ft.get("e2e_rsr_oracle_bestofM"),
-        "n_scenes": ft.get("n_scenes"),
+        "oracle": full.get("e2e_rsr_oracle_bestofM"),
+        "n_scenes": full.get("n_scenes"),
     }
 
 
@@ -150,7 +157,7 @@ _SECTOR_DEG = {"at_front": 0, "at_front_left": 45, "at_left": 90,
 
 RELATION_CATALOGUE = [
     *[{"type": k, "family": "listener sector", "ref": "listener",
-       "margin": f"(22.5&deg; &minus; |az &minus; {v}&deg;|) &middot; d",
+       "margin": f"rad(22.5&deg; &minus; |az &minus; {v}&deg;|) &middot; d",
        "unit": "arc m",
        "predicate": f"azimuth within &plusmn;22.5&deg; of {v}&deg; "
                     "(0&deg; = front, +90&deg; = left)"}
@@ -236,6 +243,29 @@ RELATION_CATALOGUE = [
 ]
 for _r in RELATION_CATALOGUE:
     _r["motion_gated"] = _r["type"] in _MOTION_RELATIONS
+
+
+def catalogue_as_used(vocab: dict) -> list[dict]:
+    """The catalogue restricted to the relation words the language actually
+    uses, grouped the way the paper counts them (8 listener sectors, 10
+    listener-relative, 7 inter-source). Relation types the code defines but
+    the language never instantiates are left out: the page must not show a
+    count the paper does not."""
+    out = []
+    for r in RELATION_CATALOGUE:
+        t = r["type"]
+        n_l = vocab["sector_counts"].get(t, 0) + vocab["listener_motion"].get(t, 0)
+        n_i = vocab["inter"].get(t, 0)
+        if not (n_l or n_i):
+            continue
+        fam = ("listener sector" if t in vocab["sector_counts"]
+               else "listener-relative" if n_l else "inter-source")
+        ref = ("listener" if n_l and not n_i else "another source" if n_i and not n_l
+               else "listener or another source")
+        out.append({**r, "family": fam, "ref": ref, "n_listener": n_l,
+                    "n_inter": n_i})
+    order = {"listener sector": 0, "listener-relative": 1, "inter-source": 2}
+    return sorted(out, key=lambda r: (order[r["family"]], -(r["n_listener"] + r["n_inter"])))
 
 
 def parse_md_tables(path) -> list[list[list[str]]]:
@@ -455,7 +485,7 @@ def main() -> int:
         },
         "vocab": vocabulary(),
         "parser": parser_info(),
-        "catalogue": RELATION_CATALOGUE,
+        "catalogue": catalogue_as_used(vocabulary()),
         "thresholds": {"dead_zone": DEFAULT_MARGIN, "motion_eps": MOTION_EPS,
                        "min_pair_sep": MIN_PAIR_SEP,
                        "side_by_side_max": SIDE_BY_SIDE_MAX,

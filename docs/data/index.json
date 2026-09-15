@@ -526,283 +526,312 @@
  },
  "parser": {
   "base": "Qwen3-4B",
-  "adapter": "QLoRA, 4-bit NF4 base, LoRA r=16 alpha=32 on the attention and MLP projections",
-  "train": "4891 sentence / graph pairs from the training split",
+  "adapter": "QLoRA (r = 16, &alpha; = 32)",
+  "train": "4891 description&ndash;structure pairs of the training split",
+  "m_draws": 5,
+  "anchor_min": 0.8472,
+  "anchor_max": 1.0,
   "rows": [
    [
     "fine-tuned parser",
+    242,
     1.0,
     1.0,
-    0.9739
+    0.9687
    ],
    [
-    "same model, few-shot prompting only",
+    "Qwen3-8B, few-shot prompting, no fine-tuning",
+    60,
     0.8855,
     0.6865,
     0.8866
    ],
    [
     "fine-tuned parser, paraphrased sentences",
+    60,
     0.9618,
     0.9885,
     0.9651
    ]
   ],
-  "oracle": 0.9933,
-  "n_scenes": 60
+  "oracle": 0.9967,
+  "n_scenes": 242
  },
  "catalogue": [
   {
    "type": "at_front",
    "family": "listener sector",
    "ref": "listener",
-   "margin": "(22.5&deg; &minus; |az &minus; 0&deg;|) &middot; d",
+   "margin": "rad(22.5&deg; &minus; |az &minus; 0&deg;|) &middot; d",
    "unit": "arc m",
    "predicate": "azimuth within &plusmn;22.5&deg; of 0&deg; (0&deg; = front, +90&deg; = left)",
-   "motion_gated": false
-  },
-  {
-   "type": "at_front_left",
-   "family": "listener sector",
-   "ref": "listener",
-   "margin": "(22.5&deg; &minus; |az &minus; 45&deg;|) &middot; d",
-   "unit": "arc m",
-   "predicate": "azimuth within &plusmn;22.5&deg; of 45&deg; (0&deg; = front, +90&deg; = left)",
-   "motion_gated": false
-  },
-  {
-   "type": "at_left",
-   "family": "listener sector",
-   "ref": "listener",
-   "margin": "(22.5&deg; &minus; |az &minus; 90&deg;|) &middot; d",
-   "unit": "arc m",
-   "predicate": "azimuth within &plusmn;22.5&deg; of 90&deg; (0&deg; = front, +90&deg; = left)",
-   "motion_gated": false
-  },
-  {
-   "type": "at_back_left",
-   "family": "listener sector",
-   "ref": "listener",
-   "margin": "(22.5&deg; &minus; |az &minus; 135&deg;|) &middot; d",
-   "unit": "arc m",
-   "predicate": "azimuth within &plusmn;22.5&deg; of 135&deg; (0&deg; = front, +90&deg; = left)",
-   "motion_gated": false
+   "motion_gated": false,
+   "n_listener": 3138,
+   "n_inter": 0
   },
   {
    "type": "at_back",
    "family": "listener sector",
    "ref": "listener",
-   "margin": "(22.5&deg; &minus; |az &minus; 180&deg;|) &middot; d",
+   "margin": "rad(22.5&deg; &minus; |az &minus; 180&deg;|) &middot; d",
    "unit": "arc m",
    "predicate": "azimuth within &plusmn;22.5&deg; of 180&deg; (0&deg; = front, +90&deg; = left)",
-   "motion_gated": false
+   "motion_gated": false,
+   "n_listener": 1632,
+   "n_inter": 0
   },
   {
-   "type": "at_back_right",
+   "type": "at_front_left",
    "family": "listener sector",
    "ref": "listener",
-   "margin": "(22.5&deg; &minus; |az &minus; -135&deg;|) &middot; d",
+   "margin": "rad(22.5&deg; &minus; |az &minus; 45&deg;|) &middot; d",
    "unit": "arc m",
-   "predicate": "azimuth within &plusmn;22.5&deg; of -135&deg; (0&deg; = front, +90&deg; = left)",
-   "motion_gated": false
-  },
-  {
-   "type": "at_right",
-   "family": "listener sector",
-   "ref": "listener",
-   "margin": "(22.5&deg; &minus; |az &minus; -90&deg;|) &middot; d",
-   "unit": "arc m",
-   "predicate": "azimuth within &plusmn;22.5&deg; of -90&deg; (0&deg; = front, +90&deg; = left)",
-   "motion_gated": false
+   "predicate": "azimuth within &plusmn;22.5&deg; of 45&deg; (0&deg; = front, +90&deg; = left)",
+   "motion_gated": false,
+   "n_listener": 1117,
+   "n_inter": 0
   },
   {
    "type": "at_front_right",
    "family": "listener sector",
    "ref": "listener",
-   "margin": "(22.5&deg; &minus; |az &minus; -45&deg;|) &middot; d",
+   "margin": "rad(22.5&deg; &minus; |az &minus; -45&deg;|) &middot; d",
    "unit": "arc m",
    "predicate": "azimuth within &plusmn;22.5&deg; of -45&deg; (0&deg; = front, +90&deg; = left)",
-   "motion_gated": false
+   "motion_gated": false,
+   "n_listener": 1079,
+   "n_inter": 0
   },
   {
-   "type": "approach",
-   "family": "listener-relative motion",
+   "type": "at_left",
+   "family": "listener sector",
    "ref": "listener",
-   "margin": "&minus;d&#775;",
-   "unit": "m/s",
-   "predicate": "distance to the listener decreasing",
-   "motion_gated": true
+   "margin": "rad(22.5&deg; &minus; |az &minus; 90&deg;|) &middot; d",
+   "unit": "arc m",
+   "predicate": "azimuth within &plusmn;22.5&deg; of 90&deg; (0&deg; = front, +90&deg; = left)",
+   "motion_gated": false,
+   "n_listener": 978,
+   "n_inter": 0
   },
   {
-   "type": "recede",
-   "family": "listener-relative motion",
+   "type": "at_right",
+   "family": "listener sector",
    "ref": "listener",
-   "margin": "d&#775;",
-   "unit": "m/s",
-   "predicate": "distance to the listener increasing",
-   "motion_gated": true
+   "margin": "rad(22.5&deg; &minus; |az &minus; -90&deg;|) &middot; d",
+   "unit": "arc m",
+   "predicate": "azimuth within &plusmn;22.5&deg; of -90&deg; (0&deg; = front, +90&deg; = left)",
+   "motion_gated": false,
+   "n_listener": 972,
+   "n_inter": 0
   },
   {
-   "type": "left_to_right",
-   "family": "listener-relative motion",
+   "type": "at_back_right",
+   "family": "listener sector",
    "ref": "listener",
-   "margin": "x&#775;",
-   "unit": "m/s",
-   "predicate": "moving toward the listener's right (x increasing)",
-   "motion_gated": true
+   "margin": "rad(22.5&deg; &minus; |az &minus; -135&deg;|) &middot; d",
+   "unit": "arc m",
+   "predicate": "azimuth within &plusmn;22.5&deg; of -135&deg; (0&deg; = front, +90&deg; = left)",
+   "motion_gated": false,
+   "n_listener": 962,
+   "n_inter": 0
+  },
+  {
+   "type": "at_back_left",
+   "family": "listener sector",
+   "ref": "listener",
+   "margin": "rad(22.5&deg; &minus; |az &minus; 135&deg;|) &middot; d",
+   "unit": "arc m",
+   "predicate": "azimuth within &plusmn;22.5&deg; of 135&deg; (0&deg; = front, +90&deg; = left)",
+   "motion_gated": false,
+   "n_listener": 916,
+   "n_inter": 0
   },
   {
    "type": "right_to_left",
-   "family": "listener-relative motion",
+   "family": "listener-relative",
    "ref": "listener",
    "margin": "&minus;x&#775;",
    "unit": "m/s",
    "predicate": "moving toward the listener's left (x decreasing)",
-   "motion_gated": true
+   "motion_gated": true,
+   "n_listener": 2235,
+   "n_inter": 0
   },
   {
-   "type": "clockwise",
-   "family": "listener-relative motion",
+   "type": "left_to_right",
+   "family": "listener-relative",
    "ref": "listener",
-   "margin": "&minus;&phi;&#775; &middot; d",
-   "unit": "m/s (tangential)",
-   "predicate": "circling front &rarr; right &rarr; back seen from above (azimuth decreasing)",
-   "motion_gated": true
+   "margin": "x&#775;",
+   "unit": "m/s",
+   "predicate": "moving toward the listener's right (x increasing)",
+   "motion_gated": true,
+   "n_listener": 2126,
+   "n_inter": 0
+  },
+  {
+   "type": "recede",
+   "family": "listener-relative",
+   "ref": "listener",
+   "margin": "d&#775;",
+   "unit": "m/s",
+   "predicate": "distance to the listener increasing",
+   "motion_gated": true,
+   "n_listener": 1776,
+   "n_inter": 0
+  },
+  {
+   "type": "approach",
+   "family": "listener-relative",
+   "ref": "listener",
+   "margin": "&minus;d&#775;",
+   "unit": "m/s",
+   "predicate": "distance to the listener decreasing",
+   "motion_gated": true,
+   "n_listener": 1192,
+   "n_inter": 0
   },
   {
    "type": "counterclockwise",
-   "family": "listener-relative motion",
+   "family": "listener-relative",
    "ref": "listener",
    "margin": "&phi;&#775; &middot; d",
    "unit": "m/s (tangential)",
    "predicate": "circling front &rarr; left &rarr; back (azimuth increasing)",
-   "motion_gated": true
+   "motion_gated": true,
+   "n_listener": 475,
+   "n_inter": 0
   },
   {
-   "type": "rising",
-   "family": "listener-relative motion",
+   "type": "clockwise",
+   "family": "listener-relative",
    "ref": "listener",
-   "margin": "z&#775;",
-   "unit": "m/s",
-   "predicate": "height increasing",
-   "motion_gated": true
+   "margin": "&minus;&phi;&#775; &middot; d",
+   "unit": "m/s (tangential)",
+   "predicate": "circling front &rarr; right &rarr; back seen from above (azimuth decreasing)",
+   "motion_gated": true,
+   "n_listener": 417,
+   "n_inter": 0
   },
   {
-   "type": "descending",
-   "family": "listener-relative motion",
+   "type": "above",
+   "family": "listener-relative",
    "ref": "listener",
-   "margin": "&minus;z&#775;",
-   "unit": "m/s",
-   "predicate": "height decreasing",
-   "motion_gated": true
+   "margin": "z<sub>s</sub> &minus; z<sub>r</sub>",
+   "unit": "m",
+   "predicate": "higher than the reference (the listener, or another source)",
+   "motion_gated": false,
+   "n_listener": 226,
+   "n_inter": 0
   },
   {
    "type": "overhead",
-   "family": "listener-relative position",
+   "family": "listener-relative",
    "ref": "listener",
    "margin": "(el &minus; 55&deg;) &middot; d",
    "unit": "arc m",
    "predicate": "elevation above 55&deg;: the source passes over the head",
-   "motion_gated": false
+   "motion_gated": false,
+   "n_listener": 177,
+   "n_inter": 0
   },
   {
-   "type": "above",
-   "family": "position",
-   "ref": "listener or source",
-   "margin": "z<sub>s</sub> &minus; z<sub>r</sub>",
-   "unit": "m",
-   "predicate": "higher than the reference (the listener, or another source)",
-   "motion_gated": false
+   "type": "rising",
+   "family": "listener-relative",
+   "ref": "listener",
+   "margin": "z&#775;",
+   "unit": "m/s",
+   "predicate": "height increasing",
+   "motion_gated": true,
+   "n_listener": 138,
+   "n_inter": 0
   },
   {
-   "type": "below",
-   "family": "position",
-   "ref": "listener or source",
-   "margin": "z<sub>r</sub> &minus; z<sub>s</sub>",
+   "type": "descending",
+   "family": "listener-relative",
+   "ref": "listener",
+   "margin": "&minus;z&#775;",
+   "unit": "m/s",
+   "predicate": "height decreasing",
+   "motion_gated": true,
+   "n_listener": 88,
+   "n_inter": 0
+  },
+  {
+   "type": "follow",
+   "family": "inter-source",
+   "ref": "another source",
+   "margin": "min(3(cos &theta; &minus; 0.7), &minus;lag, 4 &minus; gap)",
    "unit": "m",
-   "predicate": "lower than the reference",
-   "motion_gated": false
+   "predicate": "heading aligned with the reference (cos &theta; &ge; 0.7), positioned behind it along its heading, within 4 m &mdash; crossing or diverging paths are not following",
+   "motion_gated": true,
+   "n_listener": 0,
+   "n_inter": 500
+  },
+  {
+   "type": "opposite_direction",
+   "family": "inter-source",
+   "ref": "another source",
+   "margin": "min(3(&minus;cos &theta; &minus; 0.7), min gap &minus; 0.25, 0.5&middot;min(gap<sub>start</sub>, gap<sub>end</sub>) &minus; min gap)",
+   "unit": "m",
+   "predicate": "headings opposed (cos &theta; &le; &minus;0.7), the pair never overlaps, and the gap curve actually closes to a pass-by (V-shaped, scale-free)",
+   "motion_gated": true,
+   "n_listener": 0,
+   "n_inter": 490
+  },
+  {
+   "type": "same_direction",
+   "family": "inter-source",
+   "ref": "another source",
+   "margin": "min(cos &theta;, 2.5 &minus; gap, min gap &minus; 0.25)",
+   "unit": "m / cosine",
+   "predicate": "headings aligned, the pair stays side by side within 2.5 m and never overlaps",
+   "motion_gated": true,
+   "n_listener": 0,
+   "n_inter": 467
   },
   {
    "type": "closer_than",
    "family": "inter-source",
-   "ref": "source",
+   "ref": "another source",
    "margin": "d<sub>r</sub> &minus; d<sub>s</sub>",
    "unit": "m",
    "predicate": "nearer to the listener than the reference source",
-   "motion_gated": false
-  },
-  {
-   "type": "farther_than",
-   "family": "inter-source",
-   "ref": "source",
-   "margin": "d<sub>s</sub> &minus; d<sub>r</sub>",
-   "unit": "m",
-   "predicate": "farther from the listener than the reference source",
-   "motion_gated": false
-  },
-  {
-   "type": "left_of",
-   "family": "inter-source (projective)",
-   "ref": "source",
-   "margin": "lateral offset from the listener&rarr;reference ray, + = left",
-   "unit": "m",
-   "predicate": "appears to the left of the reference in the listener's view (with the listener as reference: x &lt; 0)",
-   "motion_gated": false
-  },
-  {
-   "type": "right_of",
-   "family": "inter-source (projective)",
-   "ref": "source",
-   "margin": "&minus; the same offset",
-   "unit": "m",
-   "predicate": "appears to the right of the reference in the listener's view",
-   "motion_gated": false
-  },
-  {
-   "type": "in_front_of",
-   "family": "inter-source (projective)",
-   "ref": "source",
-   "margin": "min(d<sub>r</sub> &minus; along, along, corridor &minus; |perp|)",
-   "unit": "m",
-   "predicate": "between the listener and the reference, inside a sight-line corridor of half-width max(1.6, 0.55 d<sub>r</sub>) m (with the listener as reference: y &gt; 0)",
-   "motion_gated": false
+   "motion_gated": false,
+   "n_listener": 0,
+   "n_inter": 454
   },
   {
    "type": "behind",
-   "family": "inter-source (projective)",
-   "ref": "source",
+   "family": "inter-source",
+   "ref": "another source",
    "margin": "min(along &minus; d<sub>r</sub>, corridor &minus; |perp|)",
    "unit": "m",
    "predicate": "past the reference along the listener's line of sight, inside the same corridor &mdash; the occluded side, not a world-axis comparison (with the listener as reference: y &lt; 0)",
-   "motion_gated": false
+   "motion_gated": false,
+   "n_listener": 0,
+   "n_inter": 428
   },
   {
-   "type": "same_direction",
-   "family": "inter-source (grouping)",
-   "ref": "source",
-   "margin": "min(cos &theta;, 2.5 &minus; gap, min gap &minus; 0.25)",
-   "unit": "m / cosine",
-   "predicate": "headings aligned, the pair stays side by side within 2.5 m and never overlaps",
-   "motion_gated": true
-  },
-  {
-   "type": "opposite_direction",
-   "family": "inter-source (grouping)",
-   "ref": "source",
-   "margin": "min(3(&minus;cos &theta; &minus; 0.7), min gap &minus; 0.25, 0.5&middot;min(gap<sub>start</sub>, gap<sub>end</sub>) &minus; min gap)",
+   "type": "left_of",
+   "family": "inter-source",
+   "ref": "another source",
+   "margin": "lateral offset from the listener&rarr;reference ray, + = left",
    "unit": "m",
-   "predicate": "headings opposed (cos &theta; &le; &minus;0.7), the pair never overlaps, and the gap curve actually closes to a pass-by (V-shaped, scale-free)",
-   "motion_gated": true
+   "predicate": "appears to the left of the reference in the listener's view (with the listener as reference: x &lt; 0)",
+   "motion_gated": false,
+   "n_listener": 0,
+   "n_inter": 263
   },
   {
-   "type": "follow",
-   "family": "inter-source (grouping)",
-   "ref": "source",
-   "margin": "min(3(cos &theta; &minus; 0.7), &minus;lag, 4 &minus; gap)",
+   "type": "right_of",
+   "family": "inter-source",
+   "ref": "another source",
+   "margin": "&minus; the same offset",
    "unit": "m",
-   "predicate": "heading aligned with the reference (cos &theta; &ge; 0.7), positioned behind it along its heading, within 4 m &mdash; crossing or diverging paths are not following",
-   "motion_gated": true
+   "predicate": "appears to the right of the reference in the listener's view",
+   "motion_gated": false,
+   "n_listener": 0,
+   "n_inter": 252
   }
  ],
  "thresholds": {
