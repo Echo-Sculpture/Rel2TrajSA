@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rel2Traj &mdash; Inter-Source Relation-Aware Trajectory Generation for Text-To-Spatial-Audio</title>
+<title>Rel2Traj: Inter-Source Relation-Aware Trajectory Generation for Text-To-Spatial-Audio</title>
 <meta name="description" content="Project page: inter-source relation-aware trajectory generation for text-to-spatial-audio. Interactive 3D trajectory viewer with binaural audio.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,7 +43,10 @@
   .authors{margin:14px 0 2px; font-size:1.02rem; color:var(--ink-2);}
   .authors sup{color:var(--mut); font-size:.78em;}
   .affil{color:var(--mut); font-size:.92rem;}
-  .editme{border-bottom:1px dashed var(--mut); cursor:help;}
+  .orcid{display:inline-block; margin-left:3px; font-size:.62em; font-weight:700;
+         line-height:1; padding:2px 4px; border-radius:99px; color:#fff;
+         background:#a6ce39; vertical-align:super; text-decoration:none;}
+  .orcid:hover{text-decoration:none; background:#8fb52b;}
   .btns{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
         margin-top:22px;}
   .btn{display:inline-flex; align-items:center; gap:8px; padding:9px 18px;
@@ -161,18 +164,19 @@
 <header>
   <div class="wrap">
     <span class="venue">Submitted to ICASSP 2027 &middot; under review</span>
-    <h1>Inter-Source Relation-Aware Trajectory Generation for Text-To-Spatial-Audio</h1>
+    <h1>Rel2Traj: Inter-Source Relation-Aware Trajectory Generation for Text-To-Spatial-Audio</h1>
     <p class="authors">
-      <span class="editme" title="edit build/template.html">Author One</span><sup>1</sup>,
-      <span class="editme" title="edit build/template.html">Author Two</span><sup>1</sup>
+      YiHang Bao<sup>1</sup><a class="orcid" href="https://orcid.org/0009-0009-0809-4041" title="ORCID">iD</a>,
+      XinCong Zhong<sup>1</sup><a class="orcid" href="https://orcid.org/0009-0009-0964-8827" title="ORCID">iD</a>,
+      JunPei Xue<sup>1</sup><a class="orcid" href="https://orcid.org/0009-0008-7165-9634" title="ORCID">iD</a>,
+      Shengyao Wang<sup>1</sup><a class="orcid" href="https://orcid.org/0009-0004-9167-4234" title="ORCID">iD</a>,<br>
+      Miao Pan<sup>2</sup><a class="orcid" href="https://orcid.org/0000-0003-2138-4413" title="ORCID">iD</a>,
+      Linfeng Yao<sup>2</sup><a class="orcid" href="https://orcid.org/0009-0006-2451-5633" title="ORCID">iD</a>,
+      Jiang Liu<sup>1</sup><a class="orcid" href="https://orcid.org/0000-0003-0613-0298" title="ORCID">iD</a>
     </p>
-    <p class="affil"><sup>1</sup>
-      <span class="editme" title="edit build/template.html">Affiliation</span>
-    </p>
+    <p class="affil"><sup>1</sup>Waseda University, Tokyo, Japan &nbsp;&middot;&nbsp;
+      <sup>2</sup>University of Houston, Houston, TX, USA</p>
     <div class="btns">
-      <a class="btn off" title="add the PDF link once the paper is out">&#128196; Paper</a>
-      <a class="btn off" title="add the arXiv link once posted">arXiv</a>
-      <a class="btn ghost" href="https://github.com/Echo-Sculpture/Rel2TrajSA">&#9881; Page source</a>
       <a class="btn" href="#demo">&#127911; Listen</a>
     </div>
     <p class="affil" style="margin-top:18px">Headphones required &mdash; every
@@ -483,10 +487,10 @@
 <section id="bibtex">
   <div class="wrap">
     <h2>BibTeX</h2>
-    <pre id="bib">@inproceedings{rel2traj2027,
-  title     = {Inter-Source Relation-Aware Trajectory Generation for Text-To-Spatial-Audio},
-  author    = {Author One and Author Two},
-  booktitle = {ICASSP},
+    <pre id="bib">@inproceedings{bao2027rel2traj,
+  title     = {{Rel2Traj}: Inter-Source Relation-Aware Trajectory Generation for Text-To-Spatial-Audio},
+  author    = {Bao, YiHang and Zhong, XinCong and Xue, JunPei and Wang, Shengyao and Pan, Miao and Yao, Linfeng and Liu, Jiang},
+  booktitle = {Submitted to IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
   year      = {2027},
 }</pre>
     <button class="btn ghost" id="copybib" style="margin-top:4px">Copy</button>
