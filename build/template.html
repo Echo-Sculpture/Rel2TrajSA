@@ -8,10 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css">
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/contrib/auto-render.min.js"
-  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]})"></script>
 <style>
   :root{
     --ink:#1f2328; --ink-2:#4a5461; --mut:#6b7684; --line:#e3e7ec;
@@ -69,6 +65,10 @@
   .abstract{max-width:78ch; margin:0 auto; font-size:1.03rem;}
   .abstract p{margin:0;}
   .divider{height:1px; background:var(--line); margin:38px 0 0;}
+  figure.framework{margin:0; text-align:center;}
+  figure.framework img{max-width:100%; height:auto; display:block; margin:0 auto;}
+  figure.framework figcaption{color:var(--mut); font-size:.88rem; max-width:80ch;
+                              margin:12px auto 0; text-align:left;}
 
   /* ---------- viewer ---------- */
   .scenebar{display:grid; gap:8px; padding:6px 0 14px;
@@ -196,6 +196,20 @@
   </div>
 </section>
 
+<section id="framework" style="padding-top:8px">
+  <div class="wrap">
+    <figure class="framework">
+      <img src="assets/framework.png" alt="Rel2Traj framework overview" width="1542" height="607">
+      <figcaption><b>Fig. 1.</b> Rel2Traj: (1)&nbsp;text parsing into a relation
+      graph and per-source anchors, (2)&nbsp;joint trajectory generation by a
+      relation-constrained keyframe diffusion model, and (3)&nbsp;binaural
+      rendering and evaluation. The frame-wise relational margins (bottom) are
+      shared by the training loss, the optional guidance, and the RSR
+      metric.</figcaption>
+    </figure>
+  </div>
+</section>
+
 <div class="wrap"><div class="divider"></div></div>
 
 <section id="demo">
@@ -225,7 +239,6 @@
           <input type="range" id="time" min="0" max="1000" value="0">
           <label><input type="checkbox" id="ghost"> ground-truth overlay</label>
           <label><input type="checkbox" id="alldraws"> all draws</label>
-          <label><input type="checkbox" id="mirrortest"> mirror test</label>
           <button id="reset">Reset view</button>
         </div>
         <div class="legend" id="legend"></div>
@@ -301,109 +314,6 @@
     <p class="lead">The paper's per-relation breakdown, on the in-distribution
     validation split and the compositional test split.</p>
     <div class="scroll"><div id="e6table"></div></div>
-  </div>
-</section>
-
-<div class="wrap"><div class="divider"></div></div>
-
-<section id="equivariance">
-  <div class="wrap">
-    <p class="kicker">Why held-out chirality is not extrapolation</p>
-    <h2>Mirror equivariance, derived and measured</h2>
-    <div class="lead" id="derivation">
-      <p><b>Setting.</b> Coordinates are listener-centred: \(x\) to the right,
-      \(y\) ahead, \(z\) up; a trajectory is a sequence of keyframes
-      \(\tau \in \mathbb{R}^{N\times K\times 3}\). The left&ndash;right mirror is
-      \(M:(x,y,z)\mapsto(-x,y,z)\), i.e. azimuth \(\varphi\mapsto-\varphi\)
-      with distance and elevation unchanged. It generates the group
-      \(\mathbb{Z}_2=\{e,M\}\). On the discrete conditioning it acts by a
-      permutation \(\pi\) of the vocabulary: <i>left</i>&harr;<i>right</i>,
-      <i>clockwise</i>&harr;<i>counter-clockwise</i>, mirrored sectors and
-      anchor zones swapped, self-symmetric tokens fixed. \(\pi\) was validated
-      against the metric before any model was built: mirroring a scene and
-      permuting its labels leaves every RSR unchanged.</p>
-
-      <p><b>Typed features.</b> Every hidden vector lives in
-      \(V=V_+\oplus V_-\) and the mirror acts as
-      $$\rho(M)=\operatorname{diag}(\underbrace{+1,\dots,+1}_{d_+},
-      \underbrace{-1,\dots,-1}_{d_-}),$$
-      \(V_+\) holding what a mirror leaves alone (how far, how high, front or
-      back) and \(V_-\) what it negates (\(x\), azimuth, handedness). A map
-      \(f\) between typed spaces is <em>equivariant</em> when
-      \(f(\rho(M)v)=\rho(M)f(v)\). Compositions of equivariant maps are
-      equivariant, so it is enough to make each block equivariant and chain
-      them.</p>
-
-      <p><b>Blocks.</b> Each of the six building blocks satisfies the identity
-      exactly, by construction rather than by a penalty:</p>
-      <ol>
-        <li><i>Embedding.</i> A mirror pair \((\tau,\pi\tau)\) shares its
-        symmetric part and negates its antisymmetric part; a self-symmetric
-        token has zero antisymmetric part. Hence
-        \(e(\pi\tau)=\rho(M)\,e(\tau)\).</li>
-        <li><i>Linear.</i> \(W=\operatorname{diag}(W_{++},W_{--})\) with bias
-        \(b\in V_+\) only. Then \(W\rho v+b=\rho(Wv+b)\) because \(\rho\)
-        commutes with a block-diagonal matrix and fixes \(b\). An off-diagonal
-        block would turn a symmetric feature into an antisymmetric one; a bias
-        on \(V_-\) would break \(a\mapsto-a\).</li>
-        <li><i>Normalisation.</i> LayerNorm on \(V_+\); on \(V_-\) only an RMS
-        scale, since \(\mathrm{rms}(-a)=\mathrm{rms}(a)\) keeps \(a/\mathrm{rms}(a)\)
-        odd, whereas mean-centring would add a constant to an odd channel.</li>
-        <li><i>Nonlinearity.</i> GELU on \(V_+\), where \(M\) acts trivially.
-        On \(V_-\): \(a\mapsto g(s,a^{2})\odot a\) with a gate \(g\) computed
-        from invariants only, so the product stays odd.</li>
-        <li><i>Attention.</i> With typed \(q,k\), every coordinate product
-        \(q_ik_i\) is invariant (\((+)(+)\) or \((-)(-)\)), so scores and
-        softmax weights are invariant and a weighted sum of typed values is
-        typed. \(Q,K,V,O\) are linear blocks as in (2).</li>
-        <li><i>Geometry in and out.</i> \(x\) is wired to \(V_-\), \((y,z)\) to
-        \(V_+\); the output head maps \(V_-\to x\) without bias and
-        \(V_+\to(y,z)\). Timestep and keyframe-index embeddings are invariant
-        and enter \(V_+\) only.</li>
-      </ol>
-
-      <p><b>Consequence for the network.</b> Writing \(\mathrm{flip}_x\) for
-      the sign flip of the \(x\) channel of a keyframe tensor,
-      $$\operatorname{enc}(\pi\cdot\text{scene})=\rho(M)\operatorname{enc}(\text{scene}),
-      \qquad
-      \epsilon_\theta\!\big(\mathrm{flip}_x x_t,\,t,\,\rho(M)z\big)
-      =\mathrm{flip}_x\,\epsilon_\theta(x_t,t,z).$$</p>
-
-      <p><b>Consequence for the sampler.</b> The DDIM step with \(\eta=0\) is
-      $$\hat x_0=\frac{x_t-\sqrt{1-\bar\alpha_t}\,\epsilon}{\sqrt{\bar\alpha_t}},
-      \qquad
-      x_{t-1}=\sqrt{\bar\alpha_{t-1}}\,\hat x_0+\sqrt{1-\bar\alpha_{t-1}}\,\epsilon,$$
-      linear in \((x_t,\epsilon)\) with scalar coefficients, and the clamp on
-      \(\hat x_0\) is symmetric about zero, so \(\mathrm{flip}_x\) commutes with
-      every step. By induction over the chain,
-      $$\operatorname{sample}(\pi\cdot\text{scene},\,\mathrm{flip}_x x_T)
-      =\mathrm{flip}_x\operatorname{sample}(\text{scene},\,x_T).$$
-      Since \(x_T\sim\mathcal N(0,I)\) is mirror-invariant in distribution, the
-      generated distribution itself is equivariant:
-      \(p(\tau\mid\pi\cdot\text{scene})=p(\mathrm{flip}_x\tau\mid\text{scene})\).</p>
-
-      <p><b>What this buys.</b> A held-out chirality cell is the mirror image of
-      a training cell: a counter-clockwise half circle is a clockwise one
-      mirrored, following a right-to-left source is following a left-to-right
-      one mirrored. The identity above makes generating the held-out case
-      <em>the same computation</em> as generating the trained case and
-      flipping the sign of \(x\). Nothing is extrapolated. A soft symmetry
-      penalty, tried first, reached zero on its training support and still
-      failed on the held-out cells; a structural identity has no support to
-      leave.</p>
-
-      <p><b>Why only the mirror.</b> The listener frame has no other symmetry
-      that spatial language respects: front and behind are different words,
-      up is not down, and a rotation would erase exactly the distinctions the
-      text asks for. Left&ndash;right chirality is the one symmetry of the
-      description language, so it is the one built into the network.</p>
-    </div>
-    <h3>Measured</h3>
-    <p class="lead">Every identity above was checked numerically on the demo
-    scenes for both learned systems, which share the same equivariant blocks.
-    The viewer's <b>mirror test</b> overlays the sample for the mirrored
-    prompt on the mirror image of the original sample: the two coincide.</p>
-    <div class="scroll"><div id="mirrortable"></div></div>
   </div>
 </section>
 
@@ -513,8 +423,7 @@
 <script>
 const BUILD = '{{BUILD}}';   // cache key: changes whenever the data changes
 const state = {meta:null, scene:null, cond:"REL2TRAJ", draw:0,
-               tNorm:0, playing:false, ghost:false, allDraws:false,
-               mirror:false};
+               tNorm:0, playing:false, ghost:false, allDraws:false};
 // camera: yaw/pitch orbit, a FIXED perspective strength, and a zoom that
 // scales the image. (Scaling the perspective distance instead, as an earlier
 // version did, changes foreshortening rather than size -- it reads as the
@@ -551,7 +460,7 @@ async function loadScene(i){
   state.idx = i; state.draw = 0; state.tNorm = 0; stop();
   if(!state.scene.conds[state.cond]) state.cond = 'GT';
   renderPrompt(); renderConds(); renderDraws(); renderTable(); renderGeom();
-  renderDiversity(); renderMirror();
+  renderDiversity();
   setAudio(true); draw();
 }
 
@@ -599,12 +508,10 @@ function renderConds(){
              <br>draw ${j+1} on screen: ${fmt(d.target)}`
           : `single solution &middot; scene mean ${fmt(d.mean)}`}</div>`;
     b.onclick = ()=>{ state.cond=key; renderConds(); renderDraws();
-                      renderMirror(); setAudio(false); draw(); };
+                      setAudio(false); draw(); };
     box.appendChild(b);
   }
   const cur = S.conds[state.cond];
-  const mt = document.getElementById('mirrortest');
-  mt.disabled = !cur.mirror; if(!cur.mirror){ mt.checked=false; state.mirror=false; }
   const ad = document.getElementById('alldraws');
   ad.disabled = cur.draws.length < 2;
 }
@@ -633,29 +540,6 @@ function renderDiversity(){
        solution per scene. Spread is the mean pairwise displacement between
        draws, averaged over sources and frames.`;
   }
-}
-
-function renderMirror(){
-  const S = state.scene, box = document.getElementById('mirrortable');
-  const m = state.meta.mirror;
-  const f = v => (v===null||v===undefined) ? '&mdash;' :
-                 v===0 ? '0 (exact)' : v.toExponential(1);
-  let html = `<table><thead><tr><th>system</th>
-    <th class="num">encoder identity</th>
-    <th class="num">denoiser identity, ${m ? m.timesteps.length : 0} timesteps</th>
-    <th class="num">full sampler (m)</th><th class="num">sample scale (m)</th>
-    <th class="num">worst over ${m ? m.n_scenes : 0} scenes (m)</th></tr></thead><tbody>`;
-  for(const k of ['REL2TRAJ','INDEP']){
-    const c = S.conds[k]; if(!c || !c.mirror) continue;
-    const e = c.mirror.err;
-    html += `<tr><td>${c.label} <span class="note">(this scene)</span></td>
-      <td class="num">${f(e.err_encoder)}</td><td class="num">${f(e.err_denoiser)}</td>
-      <td class="num">${f(e.err_sampler_m)}</td>
-      <td class="num">${e.sample_scale_m ? e.sample_scale_m.toFixed(2) : '&mdash;'}</td>
-      <td class="num">${m ? f(m.worst[k]) : '&mdash;'}</td></tr>`;
-  }
-  html += `</tbody></table>`;
-  box.innerHTML = html;
 }
 
 function renderCells(){
@@ -952,8 +836,6 @@ document.getElementById('ghost').onchange = e=>{
   state.ghost = e.target.checked; draw(); };
 document.getElementById('alldraws').onchange = e=>{
   state.allDraws = e.target.checked; draw(); };
-document.getElementById('mirrortest').onchange = e=>{
-  state.mirror = e.target.checked; draw(); };
 document.getElementById('reset').onclick = ()=>{
   yaw=-0.6; pitch=0.5; zoom=1; draw(); };
 document.getElementById('copybib').onclick = e=>{
@@ -1033,30 +915,19 @@ function draw(){
                {alpha:0.3, dash:[5,5], markers:false}));
   }
 
-  if(state.mirror && c.mirror){
-    // mirror test: the mirrored-prompt sample (solid) over the mirror image of
-    // the original sample (dashed white). Equivariance says they coincide.
-    c.mirror.orig.forEach((s,i)=>
-      drawPath({x:s.x.map(v=>-v), y:s.y, z:s.z}, '#ffffff', tMax, T,
-               {alpha:0.85, dash:[4,4], markers:false}));
-    c.mirror.mirror.forEach((s,i)=>
-      drawPath(s, S.sources[i].color, tMax, T, {alpha:0.8}));
-    drawTimeline(d.state, k);
-  } else {
-    if(state.allDraws && c.draws.length > 1){
-      c.draws.forEach((dd,j)=>{ if(j===Math.min(state.draw, c.draws.length-1)) return;
-        dd.src.forEach((s,i)=> drawPath(s, S.sources[i].color, tMax, T,
-                                        {alpha:0.22, markers:false})); });
-    }
-    d.src.forEach((s,i)=> drawPath(s, S.sources[i].color, tMax, T, {}));
-
-    const [ia,ib] = S.target_idx, st = d.state[k];
-    const A=d.src[ia], B=d.src[ib];
-    if(st >= 0)
-      seg([A.x[k],A.y[k],A.z[k]], [B.x[k],B.y[k],B.z[k]],
-          st===1 ? '#39c07c' : '#e05c5c', 2.2, 0.9, st===1 ? [] : [6,4]);
-    drawTimeline(d.state, k);
+  if(state.allDraws && c.draws.length > 1){
+    c.draws.forEach((dd,j)=>{ if(j===Math.min(state.draw, c.draws.length-1)) return;
+      dd.src.forEach((s,i)=> drawPath(s, S.sources[i].color, tMax, T,
+                                      {alpha:0.22, markers:false})); });
   }
+  d.src.forEach((s,i)=> drawPath(s, S.sources[i].color, tMax, T, {}));
+
+  const [ia,ib] = S.target_idx, st = d.state[k];
+  const A=d.src[ia], B=d.src[ib];
+  if(st >= 0)
+    seg([A.x[k],A.y[k],A.z[k]], [B.x[k],B.y[k],B.z[k]],
+        st===1 ? '#39c07c' : '#e05c5c', 2.2, 0.9, st===1 ? [] : [6,4]);
+  drawTimeline(d.state, k);
 
   document.getElementById('tlabel').textContent =
     tMax.toFixed(1)+' / '+S.duration.toFixed(1)+' s';

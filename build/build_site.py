@@ -345,9 +345,6 @@ def main() -> int:
     report = json.loads((WORK / "demo_trajs_report.json").read_text("utf-8"))
     render = json.loads((WORK / "render_manifest.json").read_text("utf-8"))
     trajs = np.load(WORK / "demo_trajs.npz")
-    mirror_trajs = (np.load(WORK / "mirror_trajs.npz")
-                    if (WORK / "mirror_trajs.npz").exists() else None)
-    mirror_report = load_json(WORK / "mirror_check.json")
     cells = load_json(WORK / "cells_results.json")
 
     rsr = {(r["scene"], r["cond"], r["draw"]): r for r in report["rows"]}
@@ -423,26 +420,6 @@ def main() -> int:
                 "audio": audio.get(sid, {}).get(cond),
                 "diversity": diversity_of(xyz_draws),
             }
-            # mirror test: the mirrored-prompt sample next to the original,
-            # so the page can overlay flip_x(original) on it
-            if mirror_trajs is not None and \
-                    f"{cond}|orig|{sid}|{names[0]}" in mirror_trajs:
-                pair = {}
-                for which in ("orig", "mirror"):
-                    lst = []
-                    for n in names:
-                        _, az, el, dist = mirror_trajs[f"{cond}|{which}|{sid}|{n}"]
-                        x, y, z = spherical_to_xyz(az[sel], el[sel], dist[sel])
-                        lst.append({"x": np.round(x, 2).tolist(),
-                                    "y": np.round(y, 2).tolist(),
-                                    "z": np.round(z, 2).tolist()})
-                    pair[which] = lst
-                err = next((s for s in (mirror_report or {}).get("scenes", [])
-                            if s["scene"] == sid and s["cond"] == cond), {})
-                pair["err"] = {k: err.get(k) for k in
-                               ("err_encoder", "err_denoiser", "err_sampler_m",
-                                "sample_scale_m")}
-                entry["mirror"] = pair
             payload["conds"][cond] = entry
         (SITE / "data" / f"{sid}.json").write_text(
             json.dumps(payload, ensure_ascii=False), encoding="utf-8")
@@ -485,11 +462,6 @@ def main() -> int:
                        "pass_depth_ratio": PASS_DEPTH_RATIO},
         "e6": e6_tables(),
         "cells": cells,
-        "mirror": None if mirror_report is None else {
-            "worst": mirror_report.get("worst_sampler_err_m"),
-            "timesteps": mirror_report.get("timesteps_checked"),
-            "n_scenes": len({s["scene"] for s in mirror_report["scenes"]}),
-        },
     }
     meta_json = json.dumps(site_meta, ensure_ascii=False, indent=1)
     (SITE / "data" / "index.json").write_text(meta_json, encoding="utf-8")
