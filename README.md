@@ -12,7 +12,7 @@ Every scene on the page is multi-source and carries at least one inter-source
 relation; the twelve scenes together cover all seven instantiated inter-source
 relation types and every motion primitive in the grammar.
 
-**Live page:** _(fill in once GitHub Pages is enabled)_
+**Live page:** https://echo-sculpture.github.io/Rel2TrajSA/
 
 ## Layout
 
