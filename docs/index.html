@@ -365,59 +365,9 @@
   </div>
 </section>
 
-<div class="wrap"><div class="divider"></div></div>
-
-<section id="protocol">
-  <div class="wrap">
-    <p class="kicker">Reproducibility</p>
-    <h2>How these clips were made</h2>
-    <p class="lead">Nothing on this page is a hand-picked sample. The twelve
-    scenes were chosen by a rule fixed <em>before</em> any system was run:
-    every scene must have several sources, at least one inter-source relation,
-    two distinguishable timbres for the related pair and clean ground truth;
-    among those, scenes were taken greedily so that all seven inter-source
-    relations and as many motion primitives as possible appear. The clip you
-    hear is always the first draw under the pre-registered per-scene seed.</p>
-    <p class="lead"><b>On the baselines.</b> No previously published system was
-    run for this page. The <em>independent per-source</em> column is our own
-    model with the cross-source information flow structurally removed and the
-    anchor tokens withheld &mdash; a single-variable control that isolates what
-    joint conditioning contributes, and the closest learned stand-in for
-    generating each source on its own. The <em>rule solver</em> optimises the
-    declared relations directly with a constraint solver, and
-    <em>LLM-direct</em> asks a general language model for coordinates. Each is
-    a construction of ours; none carries anyone else's name, and none should be
-    read as a measurement of another group's method.</p>
-    <details><summary>Full build protocol</summary>
-      <div class="scroll"><div id="protocoltable"></div></div>
-    </details>
-  </div>
-</section>
-
-<div class="wrap"><div class="divider"></div></div>
-
-<section id="bibtex">
-  <div class="wrap">
-    <h2>BibTeX</h2>
-    <pre id="bib">@inproceedings{bao2027rel2traj,
-  title     = {{Rel2Traj}: Inter-Source Relation-Aware Trajectory Generation for Text-To-Spatial-Audio},
-  author    = {Bao, YiHang and Zhong, XinCong and Xue, JunPei and Wang, Shengyao and Yao, Linfeng and Pan, Miao and Liu, Jiang},
-  booktitle = {Submitted to IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
-  year      = {2027},
-}</pre>
-    <button class="btn ghost" id="copybib" style="margin-top:4px">Copy</button>
-  </div>
-</section>
-
 </main>
 
-<footer><div class="wrap">
-  <p>Page layout follows the conventions of the
-  <a href="https://github.com/JunyaoHu/academic-project-page-template-vue">academic
-  project page template</a>, itself after
-  <a href="https://nerfies.github.io/">Nerfies</a>. Audio is rendered
-  binaurally; source material is generated, not recorded on location.</p>
-</div></footer>
+
 
 <audio id="snd" preload="none"></audio>
 <script>
@@ -447,7 +397,7 @@ async function boot(){
     b.onclick = ()=> loadScene(i);
     bar.appendChild(b);
   });
-  renderProtocol(); renderVocab(); renderParser();
+  renderVocab(); renderParser();
   renderCells(); renderE6(); renderCatalogue();
   loadScene(0);
 }
@@ -769,28 +719,6 @@ function renderParser(){
     `</tbody></table>`;
 }
 
-function renderProtocol(){
-  const p = state.meta.protocol;
-  document.getElementById('protocoltable').innerHTML = `
-    <table><tbody>
-      <tr><th>scene selection</th><td>${p.selection}</td></tr>
-      <tr><th>sampling</th><td>${p.sampling}; ${p.ddim_steps} DDIM steps;
-          ${p.m_draws} draws shown</td></tr>
-      <tr><th>source material</th><td>${p.material}</td></tr>
-      <tr><th>loudness</th><td>${p.loudness}</td></tr>
-      <tr><th>renderer</th><td>${p.renderer}</td></tr>
-      <tr><th>HRTF</th><td>${p.hrtf}</td></tr>
-      <tr><th>level</th><td>${p.level}</td></tr>
-      <tr><th>LLM baseline</th><td>${p.llm || 'n/a'}; temperature 0; thinking
-          off; 2 retries</td></tr>
-      <tr><th>coverage</th><td>inter-source relations:
-          ${Object.entries(p.relation_coverage).map(([k,v])=>k+' &times;'+v).join(', ')}
-          <br>motion primitives:
-          ${Object.entries(p.motion_coverage).map(([k,v])=>k+' &times;'+v).join(', ')}
-          </td></tr>
-    </tbody></table>`;
-}
-
 // ---- audio
 function setAudio(reload){
   const c = state.scene.conds[state.cond];
@@ -838,11 +766,6 @@ document.getElementById('alldraws').onchange = e=>{
   state.allDraws = e.target.checked; draw(); };
 document.getElementById('reset').onclick = ()=>{
   yaw=-0.6; pitch=0.5; zoom=1; draw(); };
-document.getElementById('copybib').onclick = e=>{
-  navigator.clipboard.writeText(document.getElementById('bib').textContent);
-  e.target.textContent = 'Copied'; setTimeout(()=>e.target.textContent='Copy', 1400);
-};
-
 // ---- 3D projection (world: x right, y front, z up)
 function project(p){
   const sy=Math.sin(yaw), cy=Math.cos(yaw), sp=Math.sin(pitch), cp=Math.cos(pitch);
